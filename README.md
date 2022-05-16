@@ -13,3 +13,8 @@ Bruno Silva, 92860
 Vasco Coelho, 92491
 
 Erros e/ou Funcionalidades não implementadas/incompletas:
+
+-Não foi possível gerar o JAVADOC-> error: Source option 1.3 is no longer supported. Use 6 or later.
+error: Target option 1.3 is no longer supported. Use 1.6 or later.
+
+-Tentámos resolver, porém não conseguimos.
