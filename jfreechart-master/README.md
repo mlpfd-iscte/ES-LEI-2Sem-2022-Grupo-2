@@ -13,7 +13,7 @@ export to multiple formats including SVG, PNG and PDF).
 
 ![JFreeChart sample](http://jfree.org/jfreechart/images/coffee_prices.png)
 
-The home page for the project is:
+The home page for the project is :
 
 http://www.jfree.org/jfreechart
 
