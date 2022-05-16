@@ -140,25 +140,8 @@ public class CrosshairState {
             double transX, double transY, PlotOrientation orientation) {
 
         if (this.anchor != null) {
-            double d = 0.0;
-            if (this.calculateDistanceInDataSpace) { 
-                d = (x - this.anchorX) * (x - this.anchorX)
-                  + (y - this.anchorY) * (y - this.anchorY);
-            }
-            else {
-                // anchor point is in Java2D coordinates
-                double xx = this.anchor.getX();
-                double yy = this.anchor.getY();
-                if (orientation == PlotOrientation.HORIZONTAL) {
-                    double temp = yy;
-                    yy = xx;
-                    xx = temp;
-                }
-                d = (transX - xx) * (transX - xx)
-                    + (transY - yy) * (transY - yy);
-            }
-
-            if (d < this.distance) {
+            double d = d(x, y, transX, transY, orientation);
+			if (d < this.distance) {
                 this.crosshairX = x;
                 this.crosshairY = y;
                 this.datasetIndex = datasetIndex;
@@ -167,6 +150,23 @@ public class CrosshairState {
         }
 
     }
+
+	private double d(double x, double y, double transX, double transY, PlotOrientation orientation) {
+		double d = 0.0;
+		if (this.calculateDistanceInDataSpace) {
+			d = (x - this.anchorX) * (x - this.anchorX) + (y - this.anchorY) * (y - this.anchorY);
+		} else {
+			double xx = this.anchor.getX();
+			double yy = this.anchor.getY();
+			if (orientation == PlotOrientation.HORIZONTAL) {
+				double temp = yy;
+				yy = xx;
+				xx = temp;
+			}
+			d = (transX - xx) * (transX - xx) + (transY - yy) * (transY - yy);
+		}
+		return d;
+	}
     
     /**
      * Checks to see if the specified data point is the closest to the

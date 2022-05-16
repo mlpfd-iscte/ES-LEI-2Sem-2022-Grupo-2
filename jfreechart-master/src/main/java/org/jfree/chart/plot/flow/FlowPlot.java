@@ -467,57 +467,15 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
         Args.nullNotPermitted(g2, "g2");
         Args.nullNotPermitted(area, "area");
  
-        EntityCollection entities = null;
-        if (info != null) {
-            info.setPlotArea(area);
-            entities = info.getOwner().getEntityCollection();
-        }
-        RectangleInsets insets = getInsets();
+        EntityCollection entities = entities(area, info);
+		RectangleInsets insets = getInsets();
         insets.trim(area);
-        if (info != null) {
-            info.setDataArea(area);
-        }
-        
         // use default JFreeChart background handling
         drawBackground(g2, area);
 
-        // we need to ensure there is space to show all the inflows and all 
-        // the outflows at each node group, so first we calculate the max
-        // flow space required - for each node in the group, consider the 
-        // maximum of the inflow and the outflow
-        double flow2d = Double.POSITIVE_INFINITY;
-        double nodeMargin2d = this.nodeMargin * area.getHeight();
+        double flow2d = flow2d(area);
+		double nodeMargin2d = this.nodeMargin * area.getHeight();
         int stageCount = this.dataset.getStageCount();
-        for (int stage = 0; stage < this.dataset.getStageCount(); stage++) {
-            List<Comparable> sources = this.dataset.getSources(stage);
-            int nodeCount = sources.size();
-            double flowTotal = 0.0;
-            for (Comparable source : sources) {
-                double inflow = FlowDatasetUtils.calculateInflow(this.dataset, source, stage);
-                double outflow = FlowDatasetUtils.calculateOutflow(this.dataset, source, stage);
-                flowTotal = flowTotal + Math.max(inflow, outflow);
-            }
-            if (flowTotal > 0.0) {
-                double availableH = area.getHeight() - (nodeCount - 1) * nodeMargin2d;
-                flow2d = Math.min(availableH / flowTotal, flow2d);
-            }
-            
-            if (stage == this.dataset.getStageCount() - 1) {
-                // check inflows to the final destination nodes...
-                List<Comparable> destinations = this.dataset.getDestinations(stage);
-                int destinationCount = destinations.size();
-                flowTotal = 0.0;
-                for (Comparable destination : destinations) {
-                    double inflow = FlowDatasetUtils.calculateInflow(this.dataset, destination, stage + 1);
-                    flowTotal = flowTotal + inflow;
-                }
-                if (flowTotal > 0.0) {
-                    double availableH = area.getHeight() - (destinationCount - 1) * nodeMargin2d;
-                    flow2d = Math.min(availableH / flowTotal, flow2d);
-                }
-            }
-        }
-
         double stageWidth = (area.getWidth() - ((stageCount + 1) * this.nodeWidth)) / stageCount;
         double flowOffset = area.getWidth() * this.flowMargin;
         
@@ -537,11 +495,11 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
             Map<FlowKey, Rectangle2D> sourceFlowRects = new HashMap<>();
             double nodeY = area.getY();
             for (Object s : this.dataset.getSources(stage)) {
-                Comparable source = (Comparable) s;
+                Rectangle2D nodeRect = nodeRect(flow2d, stage, stageLeft, nodeY, s);
+				Comparable source = (Comparable) s;
                 double inflow = FlowDatasetUtils.calculateInflow(dataset, source, stage);
                 double outflow = FlowDatasetUtils.calculateOutflow(dataset, source, stage);
                 double nodeHeight = (Math.max(inflow, outflow) * flow2d);
-                Rectangle2D nodeRect = new Rectangle2D.Double(stageLeft - nodeWidth, nodeY, nodeWidth, nodeHeight);
                 if (entities != null) {
                     entities.add(new NodeEntity(new NodeKey<>(stage, source), nodeRect, source.toString()));                
                 }
@@ -604,7 +562,8 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
                     if (sourceRect == null) { 
                         continue; 
                     }
-                    Rectangle2D destRect = destFlowRects.get(flowKey);
+                    GradientPaint gp = gp(hasFlowSelections, destFlowRects, nodeKey, ncol, flowKey, sourceRect);
+					Rectangle2D destRect = destFlowRects.get(flowKey);
                 
                     Path2D connect = new Path2D.Double();
                     connect.moveTo(sourceRect.getMaxX() + flowOffset, sourceRect.getMinY());
@@ -612,25 +571,13 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
                     connect.lineTo(destRect.getX() - flowOffset, destRect.getMaxY());
                     connect.curveTo(stageLeft + stageWidth / 2.0, destRect.getMaxY(), stageLeft + stageWidth / 2.0, sourceRect.getMaxY(), sourceRect.getMaxX() + flowOffset, sourceRect.getMaxY());
                     connect.closePath();
-                    Color nc = lookupNodeColor(nodeKey);
-                    if (hasFlowSelections) {
-                        if (!Boolean.TRUE.equals(dataset.getFlowProperty(flowKey, FlowKey.SELECTED_PROPERTY_KEY))) {
-                            int g = (ncol.getRed() + ncol.getGreen() + ncol.getBlue()) / 3;
-                            nc = new Color(g, g, g, ncol.getAlpha());
-                        }
-                    }
-                    
-                    GradientPaint gp = new GradientPaint((float) sourceRect.getMaxX(), 0, nc, (float) destRect.getMinX(), 0, new Color(nc.getRed(), nc.getGreen(), nc.getBlue(), 128));
                     Composite saved = g2.getComposite();
                     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));
                     g2.setPaint(gp);
                     g2.fill(connect);
                     if (entities != null) {
-                        String toolTip = null;
-                        if (this.toolTipGenerator != null) {
-                            toolTip = this.toolTipGenerator.generateLabel(this.dataset, flowKey);
-                        }
-                        entities.add(new FlowEntity(flowKey, connect, toolTip, ""));                
+                        String toolTip = toolTip(flowKey);
+						entities.add(new FlowEntity(flowKey, connect, toolTip, ""));                
                     }
                     g2.setComposite(saved);
                 }
@@ -645,14 +592,8 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
             NodeKey nodeKey = new NodeKey<>(lastStage + 1, destination);
             Rectangle2D nodeRect = nodeRects.get(nodeKey);
             if (nodeRect != null) {
-                Color ncol = lookupNodeColor(nodeKey);
-                if (hasNodeSelections) {
-                    if (!Boolean.TRUE.equals(dataset.getNodeProperty(nodeKey, NodeKey.SELECTED_PROPERTY_KEY))) {
-                        int g = (ncol.getRed() + ncol.getGreen() + ncol.getBlue()) / 3;
-                        ncol = new Color(g, g, g, ncol.getAlpha());
-                    }
-                }
-                g2.setPaint(ncol);
+                Color ncol = ncol(hasNodeSelections, nodeKey);
+				g2.setPaint(ncol);
                 g2.fill(nodeRect);
                 if (entities != null) {
                     entities.add(new NodeEntity(new NodeKey<>(lastStage + 1, destination), nodeRect, destination.toString()));                
@@ -676,6 +617,100 @@ public class FlowPlot extends Plot implements Cloneable, PublicCloneable,
             }
         }
     }
+
+	private Rectangle2D nodeRect(double flow2d, int stage, double stageLeft, double nodeY, Object s) {
+		Comparable source = (Comparable) s;
+		double inflow = FlowDatasetUtils.calculateInflow(dataset, source, stage);
+		double outflow = FlowDatasetUtils.calculateOutflow(dataset, source, stage);
+		double nodeHeight = (Math.max(inflow, outflow) * flow2d);
+		Rectangle2D nodeRect = new Rectangle2D.Double(stageLeft - nodeWidth, nodeY, nodeWidth, nodeHeight);
+		return nodeRect;
+	}
+
+	private GradientPaint gp(boolean hasFlowSelections, Map<FlowKey, Rectangle2D> destFlowRects, NodeKey nodeKey,
+			Color ncol, FlowKey flowKey, Rectangle2D sourceRect) {
+		Rectangle2D destRect = destFlowRects.get(flowKey);
+		Color nc = lookupNodeColor(nodeKey);
+		if (hasFlowSelections) {
+			if (!Boolean.TRUE.equals(dataset.getFlowProperty(flowKey, FlowKey.SELECTED_PROPERTY_KEY))) {
+				int g = (ncol.getRed() + ncol.getGreen() + ncol.getBlue()) / 3;
+				nc = new Color(g, g, g, ncol.getAlpha());
+			}
+		}
+		GradientPaint gp = new GradientPaint((float) sourceRect.getMaxX(), 0, nc, (float) destRect.getMinX(), 0,
+				new Color(nc.getRed(), nc.getGreen(), nc.getBlue(), 128));
+		return gp;
+	}
+
+	private double flow2d(Rectangle2D area) {
+		double flow2d = Double.POSITIVE_INFINITY;
+		double nodeMargin2d = this.nodeMargin * area.getHeight();
+		for (int stage = 0; stage < this.dataset.getStageCount(); stage++) {
+			List<Comparable> sources = this.dataset.getSources(stage);
+			int nodeCount = sources.size();
+			double flowTotal = 0.0;
+			for (Comparable source : sources) {
+				double inflow = FlowDatasetUtils.calculateInflow(this.dataset, source, stage);
+				double outflow = FlowDatasetUtils.calculateOutflow(this.dataset, source, stage);
+				flowTotal = flowTotal + Math.max(inflow, outflow);
+			}
+			if (flowTotal > 0.0) {
+				double availableH = area.getHeight() - (nodeCount - 1) * nodeMargin2d;
+				flow2d = Math.min(availableH / flowTotal, flow2d);
+			}
+			if (stage == this.dataset.getStageCount() - 1) {
+				List<Comparable> destinations = this.dataset.getDestinations(stage);
+				int destinationCount = destinations.size();
+				flowTotal = 0.0;
+				for (Comparable destination : destinations) {
+					double inflow = FlowDatasetUtils.calculateInflow(this.dataset, destination, stage + 1);
+					flowTotal = flowTotal + inflow;
+				}
+				if (flowTotal > 0.0) {
+					double availableH = area.getHeight() - (destinationCount - 1) * nodeMargin2d;
+					flow2d = Math.min(availableH / flowTotal, flow2d);
+				}
+			}
+		}
+		return flow2d;
+	}
+
+	private String toolTip(FlowKey flowKey) {
+		String toolTip = null;
+		if (this.toolTipGenerator != null) {
+			toolTip = this.toolTipGenerator.generateLabel(this.dataset, flowKey);
+		}
+		return toolTip;
+	}
+
+	private Color ncol(boolean hasNodeSelections, NodeKey nodeKey) {
+		Color ncol = lookupNodeColor(nodeKey);
+		if (hasNodeSelections) {
+			if (!Boolean.TRUE.equals(dataset.getNodeProperty(nodeKey, NodeKey.SELECTED_PROPERTY_KEY))) {
+				int g = (ncol.getRed() + ncol.getGreen() + ncol.getBlue()) / 3;
+				ncol = new Color(g, g, g, ncol.getAlpha());
+			}
+		}
+		return ncol;
+	}
+
+	private EntityCollection entities(Rectangle2D area, PlotRenderingInfo info) {
+		EntityCollection entities = null;
+		info(area, info);
+		if (info != null) {
+			entities = info.getOwner().getEntityCollection();
+		}
+		return entities;
+	}
+
+	private void info(Rectangle2D area, PlotRenderingInfo info) {
+		if (info != null) {
+			info.setPlotArea(area);
+		}
+		if (info != null) {
+			info.setDataArea(area);
+		}
+	}
     
     /**
      * Performs a lookup on the color for the specified node.

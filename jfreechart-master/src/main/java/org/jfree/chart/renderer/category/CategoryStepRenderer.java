@@ -90,6 +90,25 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
             this.line = new Line2D.Double();
         }
 
+		/**
+		 * Draws a line taking into account the specified orientation. <p> In version 1.0.5, the signature of this method was changed by the addition of the 'state' parameter.  This is an incompatible change, but is considered a low risk because it is unlikely that anyone has subclassed this renderer.  If this *does* cause trouble for you, please report it as a bug.
+		 * @param g2   the graphics device.
+		 * @param orientation   the plot orientation.
+		 * @param x0   the x-coordinate for the start of the line.
+		 * @param y0   the y-coordinate for the start of the line.
+		 * @param x1   the x-coordinate for the end of the line.
+		 * @param y1   the y-coordinate for the end of the line.
+		 */
+		public void drawLine(Graphics2D g2, PlotOrientation orientation, double x0, double y0, double x1, double y1) {
+			if (orientation == PlotOrientation.VERTICAL) {
+				this.line.setLine(x0, y0, x1, y1);
+				g2.draw(this.line);
+			} else if (orientation == PlotOrientation.HORIZONTAL) {
+				this.line.setLine(y0, x0, y1, x1);
+				g2.draw(this.line);
+			}
+		}
+
     }
 
     /** For serialization. */
@@ -211,38 +230,6 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
     }
 
     /**
-     * Draws a line taking into account the specified orientation.
-     * <p>
-     * In version 1.0.5, the signature of this method was changed by the
-     * addition of the 'state' parameter.  This is an incompatible change, but
-     * is considered a low risk because it is unlikely that anyone has
-     * subclassed this renderer.  If this *does* cause trouble for you, please
-     * report it as a bug.
-     *
-     * @param g2  the graphics device.
-     * @param state  the renderer state.
-     * @param orientation  the plot orientation.
-     * @param x0  the x-coordinate for the start of the line.
-     * @param y0  the y-coordinate for the start of the line.
-     * @param x1  the x-coordinate for the end of the line.
-     * @param y1  the y-coordinate for the end of the line.
-     */
-    protected void drawLine(Graphics2D g2, State state,
-            PlotOrientation orientation, double x0, double y0, double x1,
-            double y1) {
-
-        if (orientation == PlotOrientation.VERTICAL) {
-            state.line.setLine(x0, y0, x1, y1);
-            g2.draw(state.line);
-        }
-        else if (orientation == PlotOrientation.HORIZONTAL) {
-            state.line.setLine(y0, x0, y1, x1); // switch x and y
-            g2.draw(state.line);
-        }
-
-    }
-
-    /**
      * Draw a single data item.
      *
      * @param g2  the graphics device.
@@ -303,14 +290,14 @@ public class CategoryStepRenderer extends AbstractCategoryItemRenderer
                     }
                     x1s = x0e + xStagger;
                 }
-                drawLine(g2, (State) state, orientation, x0e, y0, x1s, y0);
+                ((State) state).drawLine(g2, orientation, x0e, y0, x1s, y0);
                 // extend x0's flat bar
 
-                drawLine(g2, (State) state, orientation, x1s, y0, x1s, y1);
+                ((State) state).drawLine(g2, orientation, x1s, y0, x1s, y1);
                 // upright bar
            }
        }
-       drawLine(g2, (State) state, orientation, x1s, y1, x1e, y1);
+       ((State) state).drawLine(g2, orientation, x1s, y1, x1e, y1);
        // x1's flat bar
 
        // draw the item labels if there are any...

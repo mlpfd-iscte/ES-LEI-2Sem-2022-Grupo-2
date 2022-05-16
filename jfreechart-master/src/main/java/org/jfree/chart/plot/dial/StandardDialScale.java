@@ -65,108 +65,12 @@ import org.jfree.chart.internal.SerialUtils;
 public class StandardDialScale extends AbstractDialLayer implements DialScale,
         Cloneable, PublicCloneable, Serializable {
 
-    /** For serialization. */
+    private StandardDialScaleProduct2 standardDialScaleProduct2 = new StandardDialScaleProduct2();
+
+	private StandardDialScaleProduct standardDialScaleProduct = new StandardDialScaleProduct();
+
+	/** For serialization. */
     static final long serialVersionUID = 3715644629665918516L;
-
-    /** The minimum data value for the scale. */
-    private double lowerBound;
-
-    /** The maximum data value for the scale. */
-    private double upperBound;
-
-    /**
-     * The start angle for the scale display, in degrees (using the same
-     * encoding as Arc2D).
-     */
-    private double startAngle;
-
-    /** The extent of the scale display. */
-    private double extent;
-
-    /**
-     * The factor (in the range 0.0 to 1.0) that determines the outside limit
-     * of the tick marks.
-     */
-    private double tickRadius;
-
-    /**
-     * The increment (in data units) between major tick marks.
-     */
-    private double majorTickIncrement;
-
-    /**
-     * The factor that is subtracted from the tickRadius to determine the
-     * inner point of the major ticks.
-     */
-    private double majorTickLength;
-
-    /**
-     * The paint to use for major tick marks.  This field is transient because
-     * it requires special handling for serialization.
-     */
-    private transient Paint majorTickPaint;
-
-    /**
-     * The stroke to use for major tick marks.  This field is transient because
-     * it requires special handling for serialization.
-     */
-    private transient Stroke majorTickStroke;
-
-    /**
-     * The number of minor ticks between each major tick.
-     */
-    private int minorTickCount;
-
-    /**
-     * The factor that is subtracted from the tickRadius to determine the
-     * inner point of the minor ticks.
-     */
-    private double minorTickLength;
-
-    /**
-     * The paint to use for minor tick marks.  This field is transient because
-     * it requires special handling for serialization.
-     */
-    private transient Paint minorTickPaint;
-
-    /**
-     * The stroke to use for minor tick marks.  This field is transient because
-     * it requires special handling for serialization.
-     */
-    private transient Stroke minorTickStroke;
-
-    /**
-     * The tick label offset.
-     */
-    private double tickLabelOffset;
-
-    /**
-     * The tick label font.
-     */
-    private Font tickLabelFont;
-
-    /**
-     * A flag that controls whether or not the tick labels are
-     * displayed.
-     */
-    private boolean tickLabelsVisible;
-
-    /**
-     * The number formatter for the tick labels.
-     */
-    private NumberFormat tickLabelFormatter;
-
-    /**
-     * A flag that controls whether or not the first tick label is
-     * displayed.
-     */
-    private boolean firstTickLabelVisible;
-
-    /**
-     * The tick label paint.  This field is transient because it requires
-     * special handling for serialization.
-     */
-    private transient Paint tickLabelPaint;
 
     /**
      * Creates a new instance of DialScale.
@@ -195,25 +99,25 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
             throw new IllegalArgumentException(
                     "Requires 'majorTickIncrement' > 0.");
         }
-        this.startAngle = startAngle;
-        this.extent = extent;
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        this.tickRadius = 0.70;
-        this.tickLabelsVisible = true;
-        this.tickLabelFormatter = new DecimalFormat("0.0");
-        this.firstTickLabelVisible = true;
-        this.tickLabelFont = new Font("Dialog", Font.BOLD, 16);
-        this.tickLabelPaint = Color.BLUE;
-        this.tickLabelOffset = 0.10;
-        this.majorTickIncrement = majorTickIncrement;
-        this.majorTickLength = 0.04;
-        this.majorTickPaint = Color.BLACK;
-        this.majorTickStroke = new BasicStroke(3.0f);
-        this.minorTickCount = minorTickCount;
-        this.minorTickLength = 0.02;
-        this.minorTickPaint = Color.BLACK;
-        this.minorTickStroke = new BasicStroke(1.0f);
+        standardDialScaleProduct.setStartAngle2(startAngle);
+        standardDialScaleProduct.setExtent2(extent);
+        standardDialScaleProduct.setLowerBound2(lowerBound);
+        standardDialScaleProduct.setUpperBound2(upperBound);
+        standardDialScaleProduct.setTickRadius2(0.70);
+        standardDialScaleProduct.setTickLabelsVisible2(true);
+        standardDialScaleProduct2.setTickLabelFormatter2(new DecimalFormat("0.0"));
+        standardDialScaleProduct2.setFirstTickLabelVisible2(true);
+        standardDialScaleProduct.setTickLabelFont2(new Font("Dialog", Font.BOLD, 16));
+        standardDialScaleProduct.setTickLabelPaint2(Color.BLUE);
+        standardDialScaleProduct.setTickLabelOffset2(0.10);
+        standardDialScaleProduct.setMajorTickIncrement2(majorTickIncrement);
+        standardDialScaleProduct.setMajorTickLength2(0.04);
+        standardDialScaleProduct.setMajorTickPaint2(Color.BLACK);
+        standardDialScaleProduct.setMajorTickStroke2(new BasicStroke(3.0f));
+        standardDialScaleProduct.setMinorTickCount2(minorTickCount);
+        standardDialScaleProduct.setMinorTickLength2(0.02);
+        standardDialScaleProduct.setMinorTickPaint2(Color.BLACK);
+        standardDialScaleProduct.setMinorTickStroke2(new BasicStroke(1.0f));
     }
 
     /**
@@ -224,7 +128,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setLowerBound(double)
      */
     public double getLowerBound() {
-        return this.lowerBound;
+        return this.standardDialScaleProduct.getLowerBound();
     }
 
     /**
@@ -236,8 +140,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getLowerBound()
      */
     public void setLowerBound(double lower) {
-        this.lowerBound = lower;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setLowerBound(lower, this);
     }
 
     /**
@@ -248,7 +151,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setUpperBound(double)
      */
     public double getUpperBound() {
-        return this.upperBound;
+        return this.standardDialScaleProduct.getUpperBound();
     }
 
     /**
@@ -260,8 +163,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getUpperBound()
      */
     public void setUpperBound(double upper) {
-        this.upperBound = upper;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setUpperBound(upper, this);
     }
 
     /**
@@ -273,7 +175,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setStartAngle(double)
      */
     public double getStartAngle() {
-        return this.startAngle;
+        return this.standardDialScaleProduct.getStartAngle();
     }
 
     /**
@@ -285,8 +187,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getStartAngle()
      */
     public void setStartAngle(double angle) {
-        this.startAngle = angle;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setStartAngle(angle, this);
     }
 
     /**
@@ -297,7 +198,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setExtent(double)
      */
     public double getExtent() {
-        return this.extent;
+        return this.standardDialScaleProduct.getExtent();
     }
 
     /**
@@ -309,8 +210,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getExtent()
      */
     public void setExtent(double extent) {
-        this.extent = extent;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setExtent(extent, this);
     }
 
     /**
@@ -322,7 +222,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickRadius(double)
      */
     public double getTickRadius() {
-        return this.tickRadius;
+        return this.standardDialScaleProduct.getTickRadius();
     }
 
     /**
@@ -334,12 +234,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getTickRadius()
      */
     public void setTickRadius(double radius) {
-        if (radius <= 0.0) {
-            throw new IllegalArgumentException(
-                    "The 'radius' must be positive.");
-        }
-        this.tickRadius = radius;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setTickRadius(radius, this);
     }
 
     /**
@@ -350,7 +245,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMajorTickIncrement(double)
      */
     public double getMajorTickIncrement() {
-        return this.majorTickIncrement;
+        return this.standardDialScaleProduct.getMajorTickIncrement();
     }
 
     /**
@@ -362,12 +257,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMajorTickIncrement()
      */
     public void setMajorTickIncrement(double increment) {
-        if (increment <= 0.0) {
-            throw new IllegalArgumentException(
-                    "The 'increment' must be positive.");
-        }
-        this.majorTickIncrement = increment;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMajorTickIncrement(increment, this);
     }
 
     /**
@@ -380,7 +270,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMajorTickLength(double)
      */
     public double getMajorTickLength() {
-        return this.majorTickLength;
+        return this.standardDialScaleProduct.getMajorTickLength();
     }
 
     /**
@@ -392,11 +282,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMajorTickLength()
      */
     public void setMajorTickLength(double length) {
-        if (length < 0.0) {
-            throw new IllegalArgumentException("Negative 'length' argument.");
-        }
-        this.majorTickLength = length;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMajorTickLength(length, this);
     }
 
     /**
@@ -407,7 +293,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMajorTickPaint(Paint)
      */
     public Paint getMajorTickPaint() {
-        return this.majorTickPaint;
+        return this.standardDialScaleProduct.getMajorTickPaint();
     }
 
     /**
@@ -419,9 +305,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMajorTickPaint()
      */
     public void setMajorTickPaint(Paint paint) {
-        Args.nullNotPermitted(paint, "paint");
-        this.majorTickPaint = paint;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMajorTickPaint(paint, this);
     }
 
     /**
@@ -432,7 +316,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMajorTickStroke(Stroke)
      */
     public Stroke getMajorTickStroke() {
-        return this.majorTickStroke;
+        return this.standardDialScaleProduct.getMajorTickStroke();
     }
 
     /**
@@ -444,9 +328,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMajorTickStroke()
      */
     public void setMajorTickStroke(Stroke stroke) {
-        Args.nullNotPermitted(stroke, "stroke");
-        this.majorTickStroke = stroke;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMajorTickStroke(stroke, this);
     }
 
     /**
@@ -457,7 +339,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMinorTickCount(int)
      */
     public int getMinorTickCount() {
-        return this.minorTickCount;
+        return this.standardDialScaleProduct.getMinorTickCount();
     }
 
     /**
@@ -469,12 +351,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMinorTickCount()
      */
     public void setMinorTickCount(int count) {
-        if (count < 0) {
-            throw new IllegalArgumentException(
-                    "The 'count' cannot be negative.");
-        }
-        this.minorTickCount = count;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMinorTickCount(count, this);
     }
 
     /**
@@ -487,7 +364,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMinorTickLength(double)
      */
     public double getMinorTickLength() {
-        return this.minorTickLength;
+        return this.standardDialScaleProduct.getMinorTickLength();
     }
 
     /**
@@ -499,11 +376,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMinorTickLength()
      */
     public void setMinorTickLength(double length) {
-        if (length < 0.0) {
-            throw new IllegalArgumentException("Negative 'length' argument.");
-        }
-        this.minorTickLength = length;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMinorTickLength(length, this);
     }
 
     /**
@@ -514,7 +387,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMinorTickPaint(Paint)
      */
     public Paint getMinorTickPaint() {
-        return this.minorTickPaint;
+        return this.standardDialScaleProduct.getMinorTickPaint();
     }
 
     /**
@@ -526,9 +399,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMinorTickPaint()
      */
     public void setMinorTickPaint(Paint paint) {
-        Args.nullNotPermitted(paint, "paint");
-        this.minorTickPaint = paint;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMinorTickPaint(paint, this);
     }
 
     /**
@@ -539,7 +410,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setMinorTickStroke(Stroke)
      */
     public Stroke getMinorTickStroke() {
-        return this.minorTickStroke;
+        return this.standardDialScaleProduct.getMinorTickStroke();
     }
 
     /**
@@ -551,9 +422,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getMinorTickStroke()
      */
     public void setMinorTickStroke(Stroke stroke) {
-        Args.nullNotPermitted(stroke, "stroke");
-        this.minorTickStroke = stroke;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setMinorTickStroke(stroke, this);
     }
 
     /**
@@ -564,7 +433,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickLabelOffset(double)
      */
     public double getTickLabelOffset() {
-        return this.tickLabelOffset;
+        return this.standardDialScaleProduct.getTickLabelOffset();
     }
 
     /**
@@ -576,8 +445,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getTickLabelOffset()
      */
     public void setTickLabelOffset(double offset) {
-        this.tickLabelOffset = offset;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setTickLabelOffset(offset, this);
     }
 
     /**
@@ -588,7 +456,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickLabelFont(Font)
      */
     public Font getTickLabelFont() {
-        return this.tickLabelFont;
+        return this.standardDialScaleProduct.getTickLabelFont();
     }
 
     /**
@@ -600,9 +468,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getTickLabelFont()
      */
     public void setTickLabelFont(Font font) {
-        Args.nullNotPermitted(font, "font");
-        this.tickLabelFont = font;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setTickLabelFont(font, this);
     }
 
     /**
@@ -613,7 +479,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickLabelPaint(Paint)
      */
     public Paint getTickLabelPaint() {
-        return this.tickLabelPaint;
+        return this.standardDialScaleProduct.getTickLabelPaint();
     }
 
     /**
@@ -623,9 +489,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @param paint  the paint ({@code null} not permitted).
      */
     public void setTickLabelPaint(Paint paint) {
-        Args.nullNotPermitted(paint, "paint");
-        this.tickLabelPaint = paint;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setTickLabelPaint(paint, this);
     }
 
     /**
@@ -637,7 +501,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickLabelsVisible(boolean)
      */
     public boolean getTickLabelsVisible() {
-        return this.tickLabelsVisible;
+        return this.standardDialScaleProduct.getTickLabelsVisible();
     }
 
     /**
@@ -650,8 +514,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getTickLabelsVisible()
      */
     public void setTickLabelsVisible(boolean visible) {
-        this.tickLabelsVisible = visible;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct.setTickLabelsVisible(visible, this);
     }
 
     /**
@@ -663,7 +526,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setTickLabelFormatter(NumberFormat)
      */
     public NumberFormat getTickLabelFormatter() {
-        return this.tickLabelFormatter;
+        return this.standardDialScaleProduct2.getTickLabelFormatter();
     }
 
     /**
@@ -676,9 +539,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getTickLabelFormatter()
      */
     public void setTickLabelFormatter(NumberFormat formatter) {
-        Args.nullNotPermitted(formatter, "formatter");
-        this.tickLabelFormatter = formatter;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct2.setTickLabelFormatter(formatter, this);
     }
 
     /**
@@ -690,7 +551,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #setFirstTickLabelVisible(boolean)
      */
     public boolean getFirstTickLabelVisible() {
-        return this.firstTickLabelVisible;
+        return this.standardDialScaleProduct2.getFirstTickLabelVisible();
     }
 
     /**
@@ -703,8 +564,7 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      * @see #getFirstTickLabelVisible()
      */
     public void setFirstTickLabelVisible(boolean visible) {
-        this.firstTickLabelVisible = visible;
-        notifyListeners(new DialLayerChangeEvent(this));
+        standardDialScaleProduct2.setFirstTickLabelVisible(visible, this);
     }
 
     /**
@@ -733,46 +593,46 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
             Rectangle2D view) {
 
         Rectangle2D arcRect = DialPlot.rectangleByRadius(frame,
-                this.tickRadius, this.tickRadius);
+                this.standardDialScaleProduct.getTickRadius(), this.standardDialScaleProduct.getTickRadius());
         Rectangle2D arcRectMajor = DialPlot.rectangleByRadius(frame,
-                this.tickRadius - this.majorTickLength,
-                this.tickRadius - this.majorTickLength);
+                this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getMajorTickLength(),
+                this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getMajorTickLength());
         Rectangle2D arcRectMinor = arcRect;
-        if (this.minorTickCount > 0 && this.minorTickLength > 0.0) {
+        if (this.standardDialScaleProduct.getMinorTickCount() > 0 && this.standardDialScaleProduct.getMinorTickLength() > 0.0) {
             arcRectMinor = DialPlot.rectangleByRadius(frame,
-                    this.tickRadius - this.minorTickLength,
-                    this.tickRadius - this.minorTickLength);
+                    this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getMinorTickLength(),
+                    this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getMinorTickLength());
         }
         Rectangle2D arcRectForLabels = DialPlot.rectangleByRadius(frame,
-                this.tickRadius - this.tickLabelOffset,
-                this.tickRadius - this.tickLabelOffset);
+                this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getTickLabelOffset(),
+                this.standardDialScaleProduct.getTickRadius() - this.standardDialScaleProduct.getTickLabelOffset());
 
         boolean firstLabel = true;
 
         Arc2D arc = new Arc2D.Double();
         Line2D workingLine = new Line2D.Double();
-        for (double v = this.lowerBound; v <= this.upperBound;
-                v += this.majorTickIncrement) {
-            arc.setArc(arcRect, this.startAngle, valueToAngle(v)
-                    - this.startAngle, Arc2D.OPEN);
+        for (double v = this.standardDialScaleProduct.getLowerBound(); v <= this.standardDialScaleProduct.getUpperBound();
+                v += this.standardDialScaleProduct.getMajorTickIncrement()) {
+            arc.setArc(arcRect, this.standardDialScaleProduct.getStartAngle(), valueToAngle(v)
+                    - this.standardDialScaleProduct.getStartAngle(), Arc2D.OPEN);
             Point2D pt0 = arc.getEndPoint();
-            arc.setArc(arcRectMajor, this.startAngle, valueToAngle(v)
-                    - this.startAngle, Arc2D.OPEN);
+            arc.setArc(arcRectMajor, this.standardDialScaleProduct.getStartAngle(), valueToAngle(v)
+                    - this.standardDialScaleProduct.getStartAngle(), Arc2D.OPEN);
             Point2D pt1 = arc.getEndPoint();
-            g2.setPaint(this.majorTickPaint);
-            g2.setStroke(this.majorTickStroke);
+            g2.setPaint(this.standardDialScaleProduct.getMajorTickPaint());
+            g2.setStroke(this.standardDialScaleProduct.getMajorTickStroke());
             workingLine.setLine(pt0, pt1);
             g2.draw(workingLine);
-            arc.setArc(arcRectForLabels, this.startAngle, valueToAngle(v)
-                    - this.startAngle, Arc2D.OPEN);
+            arc.setArc(arcRectForLabels, this.standardDialScaleProduct.getStartAngle(), valueToAngle(v)
+                    - this.standardDialScaleProduct.getStartAngle(), Arc2D.OPEN);
             Point2D pt2 = arc.getEndPoint();
 
-            if (this.tickLabelsVisible) {
-                if (!firstLabel || this.firstTickLabelVisible) {
-                    g2.setFont(this.tickLabelFont);
-                    g2.setPaint(this.tickLabelPaint);
+            if (this.standardDialScaleProduct.getTickLabelsVisible()) {
+                if (!firstLabel || this.standardDialScaleProduct2.getFirstTickLabelVisible()) {
+                    g2.setFont(this.standardDialScaleProduct.getTickLabelFont());
+                    g2.setPaint(this.standardDialScaleProduct.getTickLabelPaint());
                     TextUtils.drawAlignedString(
-                            this.tickLabelFormatter.format(v), g2,
+                            this.standardDialScaleProduct2.getTickLabelFormatter().format(v), g2,
                             (float) pt2.getX(), (float) pt2.getY(),
                             TextAnchor.CENTER);
                 }
@@ -780,24 +640,24 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
             firstLabel = false;
 
             // now do the minor tick marks
-            if (this.minorTickCount > 0 && this.minorTickLength > 0.0) {
-                double minorTickIncrement = this.majorTickIncrement
-                        / (this.minorTickCount + 1);
-                for (int i = 0; i < this.minorTickCount; i++) {
+            if (this.standardDialScaleProduct.getMinorTickCount() > 0 && this.standardDialScaleProduct.getMinorTickLength() > 0.0) {
+                double minorTickIncrement = this.standardDialScaleProduct.getMajorTickIncrement()
+                        / (this.standardDialScaleProduct.getMinorTickCount() + 1);
+                for (int i = 0; i < this.standardDialScaleProduct.getMinorTickCount(); i++) {
                     double vv = v + ((i + 1) * minorTickIncrement);
-                    if (vv >= this.upperBound) {
+                    if (vv >= this.standardDialScaleProduct.getUpperBound()) {
                         break;
                     }
                     double angle = valueToAngle(vv);
 
-                    arc.setArc(arcRect, this.startAngle, angle
-                            - this.startAngle, Arc2D.OPEN);
+                    arc.setArc(arcRect, this.standardDialScaleProduct.getStartAngle(), angle
+                            - this.standardDialScaleProduct.getStartAngle(), Arc2D.OPEN);
                     pt0 = arc.getEndPoint();
-                    arc.setArc(arcRectMinor, this.startAngle, angle
-                            - this.startAngle, Arc2D.OPEN);
+                    arc.setArc(arcRectMinor, this.standardDialScaleProduct.getStartAngle(), angle
+                            - this.standardDialScaleProduct.getStartAngle(), Arc2D.OPEN);
                     Point2D pt3 = arc.getEndPoint();
-                    g2.setStroke(this.minorTickStroke);
-                    g2.setPaint(this.minorTickPaint);
+                    g2.setStroke(this.standardDialScaleProduct.getMinorTickStroke());
+                    g2.setPaint(this.standardDialScaleProduct.getMinorTickPaint());
                     workingLine.setLine(pt0, pt3);
                     g2.draw(workingLine);
                 }
@@ -818,9 +678,9 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      */
     @Override
     public double valueToAngle(double value) {
-        double range = this.upperBound - this.lowerBound;
-        double unit = this.extent / range;
-        return this.startAngle + unit * (value - this.lowerBound);
+        double range = this.standardDialScaleProduct.getUpperBound() - this.standardDialScaleProduct.getLowerBound();
+        double unit = this.standardDialScaleProduct.getExtent() / range;
+        return this.standardDialScaleProduct.getStartAngle() + unit * (value - this.standardDialScaleProduct.getLowerBound());
     }
 
     /**
@@ -834,9 +694,9 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      */
     @Override
     public double angleToValue(double angle) {
-        double range = this.upperBound - this.lowerBound;
-        double unit = range / this.extent;
-        return (angle - this.startAngle) * unit;
+        double range = this.standardDialScaleProduct.getUpperBound() - this.standardDialScaleProduct.getLowerBound();
+        double unit = range / this.standardDialScaleProduct.getExtent();
+        return (angle - this.standardDialScaleProduct.getStartAngle()) * unit;
     }
 
     /**
@@ -856,55 +716,55 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
             return false;
         }
         StandardDialScale that = (StandardDialScale) obj;
-        if (this.lowerBound != that.lowerBound) {
+        if (this.standardDialScaleProduct.getLowerBound() != that.standardDialScaleProduct.getLowerBound()) {
             return false;
         }
-        if (this.upperBound != that.upperBound) {
+        if (this.standardDialScaleProduct.getUpperBound() != that.standardDialScaleProduct.getUpperBound()) {
             return false;
         }
-        if (this.startAngle != that.startAngle) {
+        if (this.standardDialScaleProduct.getStartAngle() != that.standardDialScaleProduct.getStartAngle()) {
             return false;
         }
-        if (this.extent != that.extent) {
+        if (this.standardDialScaleProduct.getExtent() != that.standardDialScaleProduct.getExtent()) {
             return false;
         }
-        if (this.tickRadius != that.tickRadius) {
+        if (this.standardDialScaleProduct.getTickRadius() != that.standardDialScaleProduct.getTickRadius()) {
             return false;
         }
-        if (this.majorTickIncrement != that.majorTickIncrement) {
+        if (this.standardDialScaleProduct.getMajorTickIncrement() != that.standardDialScaleProduct.getMajorTickIncrement()) {
             return false;
         }
-        if (this.majorTickLength != that.majorTickLength) {
+        if (this.standardDialScaleProduct.getMajorTickLength() != that.standardDialScaleProduct.getMajorTickLength()) {
             return false;
         }
-        if (!PaintUtils.equal(this.majorTickPaint, that.majorTickPaint)) {
+        if (!PaintUtils.equal(this.standardDialScaleProduct.getMajorTickPaint(), that.standardDialScaleProduct.getMajorTickPaint())) {
             return false;
         }
-        if (!this.majorTickStroke.equals(that.majorTickStroke)) {
+        if (!this.standardDialScaleProduct.getMajorTickStroke().equals(that.standardDialScaleProduct.getMajorTickStroke())) {
             return false;
         }
-        if (this.minorTickCount != that.minorTickCount) {
+        if (this.standardDialScaleProduct.getMinorTickCount() != that.standardDialScaleProduct.getMinorTickCount()) {
             return false;
         }
-        if (this.minorTickLength != that.minorTickLength) {
+        if (this.standardDialScaleProduct.getMinorTickLength() != that.standardDialScaleProduct.getMinorTickLength()) {
             return false;
         }
-        if (!PaintUtils.equal(this.minorTickPaint, that.minorTickPaint)) {
+        if (!PaintUtils.equal(this.standardDialScaleProduct.getMinorTickPaint(), that.standardDialScaleProduct.getMinorTickPaint())) {
             return false;
         }
-        if (!this.minorTickStroke.equals(that.minorTickStroke)) {
+        if (!this.standardDialScaleProduct.getMinorTickStroke().equals(that.standardDialScaleProduct.getMinorTickStroke())) {
             return false;
         }
-        if (this.tickLabelsVisible != that.tickLabelsVisible) {
+        if (this.standardDialScaleProduct.getTickLabelsVisible() != that.standardDialScaleProduct.getTickLabelsVisible()) {
             return false;
         }
-        if (this.tickLabelOffset != that.tickLabelOffset) {
+        if (this.standardDialScaleProduct.getTickLabelOffset() != that.standardDialScaleProduct.getTickLabelOffset()) {
             return false;
         }
-        if (!this.tickLabelFont.equals(that.tickLabelFont)) {
+        if (!this.standardDialScaleProduct.getTickLabelFont().equals(that.standardDialScaleProduct.getTickLabelFont())) {
             return false;
         }
-        if (!PaintUtils.equal(this.tickLabelPaint, that.tickLabelPaint)) {
+        if (!PaintUtils.equal(this.standardDialScaleProduct.getTickLabelPaint(), that.standardDialScaleProduct.getTickLabelPaint())) {
             return false;
         }
         return super.equals(obj);
@@ -919,19 +779,19 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
     public int hashCode() {
         int result = 193;
         // lowerBound
-        long temp = Double.doubleToLongBits(this.lowerBound);
+        long temp = Double.doubleToLongBits(this.standardDialScaleProduct.getLowerBound());
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         // upperBound
-        temp = Double.doubleToLongBits(this.upperBound);
+        temp = Double.doubleToLongBits(this.standardDialScaleProduct.getUpperBound());
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         // startAngle
-        temp = Double.doubleToLongBits(this.startAngle);
+        temp = Double.doubleToLongBits(this.standardDialScaleProduct.getStartAngle());
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         // extent
-        temp = Double.doubleToLongBits(this.extent);
+        temp = Double.doubleToLongBits(this.standardDialScaleProduct.getExtent());
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         // tickRadius
-        temp = Double.doubleToLongBits(this.tickRadius);
+        temp = Double.doubleToLongBits(this.standardDialScaleProduct.getTickRadius());
         result = 37 * result + (int) (temp ^ (temp >>> 32));
         // majorTickIncrement
         // majorTickLength
@@ -970,11 +830,11 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
-        SerialUtils.writePaint(this.majorTickPaint, stream);
-        SerialUtils.writeStroke(this.majorTickStroke, stream);
-        SerialUtils.writePaint(this.minorTickPaint, stream);
-        SerialUtils.writeStroke(this.minorTickStroke, stream);
-        SerialUtils.writePaint(this.tickLabelPaint, stream);
+        SerialUtils.writePaint(this.standardDialScaleProduct.getMajorTickPaint(), stream);
+        SerialUtils.writeStroke(this.standardDialScaleProduct.getMajorTickStroke(), stream);
+        SerialUtils.writePaint(this.standardDialScaleProduct.getMinorTickPaint(), stream);
+        SerialUtils.writeStroke(this.standardDialScaleProduct.getMinorTickStroke(), stream);
+        SerialUtils.writePaint(this.standardDialScaleProduct.getTickLabelPaint(), stream);
     }
 
     /**
@@ -988,11 +848,11 @@ public class StandardDialScale extends AbstractDialLayer implements DialScale,
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
-        this.majorTickPaint = SerialUtils.readPaint(stream);
-        this.majorTickStroke = SerialUtils.readStroke(stream);
-        this.minorTickPaint = SerialUtils.readPaint(stream);
-        this.minorTickStroke = SerialUtils.readStroke(stream);
-        this.tickLabelPaint = SerialUtils.readPaint(stream);
+        standardDialScaleProduct.setMajorTickPaint2(SerialUtils.readPaint(stream));
+        standardDialScaleProduct.setMajorTickStroke2(SerialUtils.readStroke(stream));
+        standardDialScaleProduct.setMinorTickPaint2(SerialUtils.readPaint(stream));
+        standardDialScaleProduct.setMinorTickStroke2(SerialUtils.readStroke(stream));
+        standardDialScaleProduct.setTickLabelPaint2(SerialUtils.readPaint(stream));
     }
 
 }

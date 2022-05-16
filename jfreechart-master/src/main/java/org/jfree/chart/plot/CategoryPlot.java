@@ -3635,54 +3635,55 @@ public class CategoryPlot<R extends Comparable<R>, C extends Comparable<C>>
         if (hasData && renderer != null) {
 
             foundData = true;
-            CategoryItemRendererState state = renderer.initialise(g2, dataArea,
-                    this, index, info);
-            state.setCrosshairState(crosshairState);
-            int columnCount = currentDataset.getColumnCount();
-            int rowCount = currentDataset.getRowCount();
-            int passCount = renderer.getPassCount();
-            for (int pass = 0; pass < passCount; pass++) {
-                if (this.columnRenderingOrder == SortOrder.ASCENDING) {
-                    for (int column = 0; column < columnCount; column++) {
-                        if (this.rowRenderingOrder == SortOrder.ASCENDING) {
-                            for (int row = 0; row < rowCount; row++) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
-                            }
-                        }
-                        else {
-                            for (int row = rowCount - 1; row >= 0; row--) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (int column = columnCount - 1; column >= 0; column--) {
-                        if (this.rowRenderingOrder == SortOrder.ASCENDING) {
-                            for (int row = 0; row < rowCount; row++) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
-                            }
-                        }
-                        else {
-                            for (int row = rowCount - 1; row >= 0; row--) {
-                                renderer.drawItem(g2, state, dataArea, this,
-                                        domainAxis, rangeAxis, currentDataset,
-                                        row, column, pass);
-                            }
-                        }
-                    }
-                }
-            }
+            CategoryItemRendererState state = state(g2, dataArea, index, info, crosshairState, currentDataset, renderer,
+					domainAxis, rangeAxis);
         }
         return foundData;
 
     }
+
+	private <R extends Comparable<R>, C extends Comparable<C>> CategoryItemRendererState state(Graphics2D g2,
+			Rectangle2D dataArea, int index, PlotRenderingInfo info, CategoryCrosshairState<R, C> crosshairState,
+			CategoryDataset<R, C> currentDataset, CategoryItemRenderer renderer, CategoryAxis domainAxis,
+			ValueAxis rangeAxis) {
+		CategoryItemRendererState state = renderer.initialise(g2, dataArea, this, index, info);
+		state.setCrosshairState(crosshairState);
+		int columnCount = currentDataset.getColumnCount();
+		int rowCount = currentDataset.getRowCount();
+		int passCount = renderer.getPassCount();
+		for (int pass = 0; pass < passCount; pass++) {
+			if (this.columnRenderingOrder == SortOrder.ASCENDING) {
+				for (int column = 0; column < columnCount; column++) {
+					if (this.rowRenderingOrder == SortOrder.ASCENDING) {
+						for (int row = 0; row < rowCount; row++) {
+							renderer.drawItem(g2, state, dataArea, this, domainAxis, rangeAxis, currentDataset, row,
+									column, pass);
+						}
+					} else {
+						for (int row = rowCount - 1; row >= 0; row--) {
+							renderer.drawItem(g2, state, dataArea, this, domainAxis, rangeAxis, currentDataset, row,
+									column, pass);
+						}
+					}
+				}
+			} else {
+				for (int column = columnCount - 1; column >= 0; column--) {
+					if (this.rowRenderingOrder == SortOrder.ASCENDING) {
+						for (int row = 0; row < rowCount; row++) {
+							renderer.drawItem(g2, state, dataArea, this, domainAxis, rangeAxis, currentDataset, row,
+									column, pass);
+						}
+					} else {
+						for (int row = rowCount - 1; row >= 0; row--) {
+							renderer.drawItem(g2, state, dataArea, this, domainAxis, rangeAxis, currentDataset, row,
+									column, pass);
+						}
+					}
+				}
+			}
+		}
+		return state;
+	}
 
     /**
      * Draws the domain gridlines for the plot, if they are visible.
@@ -3949,24 +3950,24 @@ public class CategoryPlot<R extends Comparable<R>, C extends Comparable<C>>
         if (!axis.getRange().contains(value)) {
             return;
         }
-        Line2D line;
-        if (orientation == PlotOrientation.HORIZONTAL) {
-            double xx = axis.valueToJava2D(value, dataArea,
-                    RectangleEdge.BOTTOM);
-            line = new Line2D.Double(xx, dataArea.getMinY(), xx,
-                    dataArea.getMaxY());
-        }
-        else {
-            double yy = axis.valueToJava2D(value, dataArea,
-                    RectangleEdge.LEFT);
-            line = new Line2D.Double(dataArea.getMinX(), yy,
-                    dataArea.getMaxX(), yy);
-        }
-        g2.setStroke(stroke);
+        Line2D line = line(dataArea, orientation, value, axis);
+		g2.setStroke(stroke);
         g2.setPaint(paint);
         g2.draw(line);
 
     }
+
+	private Line2D line(Rectangle2D dataArea, PlotOrientation orientation, double value, ValueAxis axis) {
+		Line2D line;
+		if (orientation == PlotOrientation.HORIZONTAL) {
+			double xx = axis.valueToJava2D(value, dataArea, RectangleEdge.BOTTOM);
+			line = new Line2D.Double(xx, dataArea.getMinY(), xx, dataArea.getMaxY());
+		} else {
+			double yy = axis.valueToJava2D(value, dataArea, RectangleEdge.LEFT);
+			line = new Line2D.Double(dataArea.getMinX(), yy, dataArea.getMaxX(), yy);
+		}
+		return line;
+	}
 
     /**
      * Returns the range of data values that will be plotted against the range
@@ -4408,20 +4409,23 @@ public class CategoryPlot<R extends Comparable<R>, C extends Comparable<C>>
             if (rangeAxis == null) {
                 continue;
             }
-            if (useAnchor) {
-                // get the relevant source coordinate given the plot orientation
-                double sourceY = source.getY();
-                if (this.orientation.isHorizontal()) {
-                    sourceY = source.getX();
-                }
-                double anchorY = rangeAxis.java2DToValue(sourceY,
-                        info.getDataArea(), getRangeAxisEdge());
-                rangeAxis.resizeRange2(factor, anchorY);
-            } else {
-                rangeAxis.resizeRange(factor);
-            }
+            rangeAxis(factor, info, source, useAnchor, rangeAxis);
         }
     }
+
+	private void rangeAxis(double factor, PlotRenderingInfo info, Point2D source, boolean useAnchor,
+			ValueAxis rangeAxis) {
+		if (useAnchor) {
+			double sourceY = source.getY();
+			if (this.orientation.isHorizontal()) {
+				sourceY = source.getX();
+			}
+			double anchorY = rangeAxis.java2DToValue(sourceY, info.getDataArea(), getRangeAxisEdge());
+			rangeAxis.resizeRange2(factor, anchorY);
+		} else {
+			rangeAxis.resizeRange(factor);
+		}
+	}
 
     /**
      * Zooms in on the range axes.
@@ -4860,21 +4864,8 @@ public class CategoryPlot<R extends Comparable<R>, C extends Comparable<C>>
     private void readObject(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
 
-        stream.defaultReadObject();
-        this.domainGridlineStroke = SerialUtils.readStroke(stream);
-        this.domainGridlinePaint = SerialUtils.readPaint(stream);
-        this.rangeGridlineStroke = SerialUtils.readStroke(stream);
-        this.rangeGridlinePaint = SerialUtils.readPaint(stream);
-        this.rangeCrosshairStroke = SerialUtils.readStroke(stream);
-        this.rangeCrosshairPaint = SerialUtils.readPaint(stream);
-        this.domainCrosshairStroke = SerialUtils.readStroke(stream);
-        this.domainCrosshairPaint = SerialUtils.readPaint(stream);
-        this.rangeMinorGridlineStroke = SerialUtils.readStroke(stream);
-        this.rangeMinorGridlinePaint = SerialUtils.readPaint(stream);
-        this.rangeZeroBaselineStroke = SerialUtils.readStroke(stream);
-        this.rangeZeroBaselinePaint = SerialUtils.readPaint(stream);
-
-        for (CategoryAxis xAxis : this.domainAxes.values()) {
+        stream(stream);
+		for (CategoryAxis xAxis : this.domainAxes.values()) {
             if (xAxis != null) {
                 xAxis.setPlot(this);
                 xAxis.addChangeListener(this);
@@ -4898,5 +4889,21 @@ public class CategoryPlot<R extends Comparable<R>, C extends Comparable<C>>
         }
 
     }
+
+	private void stream(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		this.domainGridlineStroke = SerialUtils.readStroke(stream);
+		this.domainGridlinePaint = SerialUtils.readPaint(stream);
+		this.rangeGridlineStroke = SerialUtils.readStroke(stream);
+		this.rangeGridlinePaint = SerialUtils.readPaint(stream);
+		this.rangeCrosshairStroke = SerialUtils.readStroke(stream);
+		this.rangeCrosshairPaint = SerialUtils.readPaint(stream);
+		this.domainCrosshairStroke = SerialUtils.readStroke(stream);
+		this.domainCrosshairPaint = SerialUtils.readPaint(stream);
+		this.rangeMinorGridlineStroke = SerialUtils.readStroke(stream);
+		this.rangeMinorGridlinePaint = SerialUtils.readPaint(stream);
+		this.rangeZeroBaselineStroke = SerialUtils.readStroke(stream);
+		this.rangeZeroBaselinePaint = SerialUtils.readPaint(stream);
+	}
 
 }

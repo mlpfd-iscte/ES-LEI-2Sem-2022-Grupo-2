@@ -721,14 +721,18 @@ public class Crosshair implements Cloneable, PublicCloneable, Serializable {
      */
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-        this.paint = SerialUtils.readPaint(stream);
-        this.stroke = SerialUtils.readStroke(stream);
-        this.labelPaint = SerialUtils.readPaint(stream);
-        this.labelBackgroundPaint = SerialUtils.readPaint(stream);
-        this.labelOutlineStroke = SerialUtils.readStroke(stream);
-        this.labelOutlinePaint = SerialUtils.readPaint(stream);
-        this.pcs = new PropertyChangeSupport(this);
+        stream(stream);
+		this.pcs = new PropertyChangeSupport(this);
     }
+
+	private void stream(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		this.paint = SerialUtils.readPaint(stream);
+		this.stroke = SerialUtils.readStroke(stream);
+		this.labelPaint = SerialUtils.readPaint(stream);
+		this.labelBackgroundPaint = SerialUtils.readPaint(stream);
+		this.labelOutlineStroke = SerialUtils.readStroke(stream);
+		this.labelOutlinePaint = SerialUtils.readPaint(stream);
+	}
 
 }

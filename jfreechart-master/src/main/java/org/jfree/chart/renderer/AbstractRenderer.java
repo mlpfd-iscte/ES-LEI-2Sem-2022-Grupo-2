@@ -95,7 +95,15 @@ import org.jfree.data.ItemKey;
  */
 public abstract class AbstractRenderer implements ChartElement, Cloneable, Serializable {
 
-    /** For serialization. */
+    private AbstractRendererProduct4 abstractRendererProduct4 = new AbstractRendererProduct4();
+
+	private AbstractRendererProduct3 abstractRendererProduct3 = new AbstractRendererProduct3();
+
+	private AbstractRendererProduct2 abstractRendererProduct2 = new AbstractRendererProduct2();
+
+	private transient AbstractRendererProduct abstractRendererProduct = new AbstractRendererProduct();
+
+	/** For serialization. */
     private static final long serialVersionUID = -828267569428206075L;
 
     /** Zero represented as a {@code double}. */
@@ -123,21 +131,6 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
 
     /** The default value label paint. */
     public static final Paint DEFAULT_VALUE_LABEL_PAINT = Color.BLACK;
-
-    /** A list of flags that controls whether or not each series is visible. */
-    private Map<Integer, Boolean> seriesVisibleMap;
-
-    /** The default visibility for all series. */
-    private boolean defaultSeriesVisible;
-
-    /**
-     * A list of flags that controls whether or not each series is visible in
-     * the legend.
-     */
-    private Map<Integer, Boolean> seriesVisibleInLegendMap;
-
-    /** The default visibility for each series in the legend. */
-    private boolean defaultSeriesVisibleInLegend;
 
     /** The paint for each series. */
     private transient Map<Integer, Paint> seriesPaintMap;
@@ -235,12 +228,6 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
     /** The fallback positive item label position. */
     private ItemLabelPosition defaultPositiveItemLabelPosition;
 
-    /** The negative item label position (per series). */
-    private Map<Integer, ItemLabelPosition> negativeItemLabelPositionMap;
-
-    /** The fallback negative item label position. */
-    private ItemLabelPosition defaultNegativeItemLabelPosition;
-
     /** The item label anchor offset. */
     private double itemLabelAnchorOffset = 2.0;
 
@@ -298,9 +285,6 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
     /** The default radius for the entity 'hotspot' */
     private int defaultEntityRadius;
 
-    /** Storage for registered change listeners. */
-    private transient EventListenerList listenerList;
-
     /** An event for re-use. */
     private transient RendererChangeEvent event;
 
@@ -308,11 +292,11 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * Default constructor.
      */
     public AbstractRenderer() {
-        this.seriesVisibleMap = new HashMap<>();
-        this.defaultSeriesVisible = true;
+        abstractRendererProduct2.setSeriesVisibleMap(new HashMap<>());
+        abstractRendererProduct2.setDefaultSeriesVisible(true);
 
-        this.seriesVisibleInLegendMap = new HashMap<>();
-        this.defaultSeriesVisibleInLegend = true;
+        abstractRendererProduct3.setSeriesVisibleInLegendMap(new HashMap<>());
+        abstractRendererProduct3.setDefaultSeriesVisibleInLegend2(true);
 
         this.seriesPaintMap = new HashMap<>();
         this.defaultPaint = DEFAULT_PAINT;
@@ -351,9 +335,9 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
         this.defaultPositiveItemLabelPosition = new ItemLabelPosition(
                 ItemLabelAnchor.OUTSIDE12, TextAnchor.BOTTOM_CENTER);
 
-        this.negativeItemLabelPositionMap = new HashMap<>();
-        this.defaultNegativeItemLabelPosition = new ItemLabelPosition(
-                ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER);
+        abstractRendererProduct4.setNegativeItemLabelPositionMap(new HashMap<>());
+        abstractRendererProduct4.setDefaultNegativeItemLabelPosition2(
+				new ItemLabelPosition(ItemLabelAnchor.OUTSIDE6, TextAnchor.TOP_CENTER));
 
         this.seriesCreateEntitiesMap = new HashMap<>();
         this.defaultCreateEntities = true;
@@ -371,7 +355,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
         this.legendTextPaints = new HashMap<>();
         this.defaultLegendTextPaint = null;
 
-        this.listenerList = new EventListenerList();
+        abstractRendererProduct.setListenerList(new EventListenerList());
     }
 
     /**
@@ -431,7 +415,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @return A boolean.
      */
     public boolean getItemVisible(int series, int item) {
-        return isSeriesVisible(series);
+        return abstractRendererProduct2.isSeriesVisible(series);
     }
 
     /**
@@ -445,12 +429,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @return A boolean.
      */
     public boolean isSeriesVisible(int series) {
-        boolean result = this.defaultSeriesVisible;
-        Boolean b = this.seriesVisibleMap.get(series);
-        if (b != null) {
-            result = b;
-        }
-        return result;
+        return abstractRendererProduct2.isSeriesVisible(series);
     }
 
     /**
@@ -463,7 +442,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setSeriesVisible(int, Boolean)
      */
     public Boolean getSeriesVisible(int series) {
-        return this.seriesVisibleMap.get(series);
+        return this.abstractRendererProduct2.getSeriesVisibleMap().get(series);
     }
 
     /**
@@ -491,14 +470,14 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #getSeriesVisible(int)
      */
     public void setSeriesVisible(int series, Boolean visible, boolean notify) {
-        this.seriesVisibleMap.put(series, visible);
+        this.abstractRendererProduct2.getSeriesVisibleMap().put(series, visible);
         if (notify) {
             // we create an event with a special flag set...the purpose of
             // this is to communicate to the plot (the default receiver of
             // the event) that series visibility has changed so the axis
             // ranges might need updating...
             RendererChangeEvent e = new RendererChangeEvent(this, true);
-            notifyListeners(e);
+            abstractRendererProduct.notifyListeners(e);
         }
     }
 
@@ -510,7 +489,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setDefaultSeriesVisible(boolean)
      */
     public boolean getDefaultSeriesVisible() {
-        return this.defaultSeriesVisible;
+        return this.abstractRendererProduct2.getDefaultSeriesVisible();
     }
 
     /**
@@ -536,14 +515,14 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #getDefaultSeriesVisible()
      */
     public void setDefaultSeriesVisible(boolean visible, boolean notify) {
-        this.defaultSeriesVisible = visible;
+        abstractRendererProduct2.setDefaultSeriesVisible(visible);
         if (notify) {
             // we create an event with a special flag set...the purpose of
             // this is to communicate to the plot (the default receiver of
             // the event) that series visibility has changed so the axis
             // ranges might need updating...
             RendererChangeEvent e = new RendererChangeEvent(this, true);
-            notifyListeners(e);
+            abstractRendererProduct.notifyListeners(e);
         }
     }
 
@@ -558,12 +537,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @return A boolean.
      */
     public boolean isSeriesVisibleInLegend(int series) {
-        boolean result = this.defaultSeriesVisibleInLegend;
-        Boolean b = this.seriesVisibleInLegendMap.get(series);
-        if (b != null) {
-            result = b;
-        }
-        return result;
+        return abstractRendererProduct3.isSeriesVisibleInLegend(series);
     }
 
     /**
@@ -579,7 +553,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setSeriesVisibleInLegend(int, Boolean)
      */
     public Boolean getSeriesVisibleInLegend(int series) {
-        return this.seriesVisibleInLegendMap.get(series);
+        return this.abstractRendererProduct3.getSeriesVisibleInLegendMap().get(series);
     }
 
     /**
@@ -607,7 +581,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #getSeriesVisibleInLegend(int)
      */
     public void setSeriesVisibleInLegend(int series, Boolean visible, boolean notify) {
-        this.seriesVisibleInLegendMap.put(series, visible);
+        this.abstractRendererProduct3.getSeriesVisibleInLegendMap().put(series, visible);
         if (notify) {
             fireChangeEvent();
         }
@@ -621,7 +595,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setDefaultSeriesVisibleInLegend(boolean)
      */
     public boolean getDefaultSeriesVisibleInLegend() {
-        return this.defaultSeriesVisibleInLegend;
+        return this.abstractRendererProduct3.getDefaultSeriesVisibleInLegend();
     }
 
     /**
@@ -634,7 +608,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setDefaultSeriesVisibleInLegend(boolean visible) {
         // defer argument checking...
-        setDefaultSeriesVisibleInLegend(visible, true);
+        abstractRendererProduct3.setDefaultSeriesVisibleInLegend(visible, true, this);
     }
 
     /**
@@ -648,10 +622,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setDefaultSeriesVisibleInLegend(boolean visible, 
             boolean notify) {
-        this.defaultSeriesVisibleInLegend = visible;
-        if (notify) {
-            fireChangeEvent();
-        }
+        abstractRendererProduct3.setDefaultSeriesVisibleInLegend(visible, notify, this);
     }
 
     // PAINT
@@ -2027,7 +1998,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #getPositiveItemLabelPosition(int, int)
      */
     public ItemLabelPosition getNegativeItemLabelPosition(int row, int column) {
-        return getSeriesNegativeItemLabelPosition(row);
+        return abstractRendererProduct4.getSeriesNegativeItemLabelPosition(row);
     }
 
     /**
@@ -2040,13 +2011,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setSeriesNegativeItemLabelPosition(int, ItemLabelPosition)
      */
     public ItemLabelPosition getSeriesNegativeItemLabelPosition(int series) {
-        // otherwise look up the position list
-        ItemLabelPosition position 
-                = this.negativeItemLabelPositionMap.get(series);
-        if (position == null) {
-            position = this.defaultNegativeItemLabelPosition;
-        }
-        return position;
+        return abstractRendererProduct4.getSeriesNegativeItemLabelPosition(series);
     }
 
     /**
@@ -2060,7 +2025,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setSeriesNegativeItemLabelPosition(int series,
                                                    ItemLabelPosition position) {
-        setSeriesNegativeItemLabelPosition(series, position, true);
+        abstractRendererProduct4.setSeriesNegativeItemLabelPosition(series, position, true, this);
     }
 
     /**
@@ -2076,10 +2041,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setSeriesNegativeItemLabelPosition(int series,
             ItemLabelPosition position, boolean notify) {
-        this.negativeItemLabelPositionMap.put(series, position);
-        if (notify) {
-            fireChangeEvent();
-        }
+        abstractRendererProduct4.setSeriesNegativeItemLabelPosition(series, position, notify, this);
     }
 
     /**
@@ -2090,7 +2052,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #setDefaultNegativeItemLabelPosition(ItemLabelPosition)
      */
     public ItemLabelPosition getDefaultNegativeItemLabelPosition() {
-        return this.defaultNegativeItemLabelPosition;
+        return this.abstractRendererProduct4.getDefaultNegativeItemLabelPosition();
     }
 
     /**
@@ -2103,7 +2065,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setDefaultNegativeItemLabelPosition(
             ItemLabelPosition position) {
-        setDefaultNegativeItemLabelPosition(position, true);
+        abstractRendererProduct4.setDefaultNegativeItemLabelPosition(position, true, this);
     }
 
     /**
@@ -2117,11 +2079,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setDefaultNegativeItemLabelPosition(ItemLabelPosition position,
             boolean notify) {
-        Args.nullNotPermitted(position, "position");
-        this.defaultNegativeItemLabelPosition = position;
-        if (notify) {
-            fireChangeEvent();
-        }
+        abstractRendererProduct4.setDefaultNegativeItemLabelPosition(position, notify, this);
     }
 
     /**
@@ -2506,7 +2464,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     public void setDataBoundsIncludesVisibleSeriesOnly(boolean visibleOnly) {
         this.dataBoundsIncludesVisibleSeriesOnly = visibleOnly;
-        notifyListeners(new RendererChangeEvent(this, true));
+        abstractRendererProduct.notifyListeners(new RendererChangeEvent(this, true));
     }
 
     /** The adjacent offset. */
@@ -2647,8 +2605,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #removeChangeListener(RendererChangeListener)
      */
     public void addChangeListener(RendererChangeListener listener) {
-        Args.nullNotPermitted(listener, "listener");
-        this.listenerList.add(RendererChangeListener.class, listener);
+        abstractRendererProduct.addChangeListener(listener);
     }
 
     /**
@@ -2660,8 +2617,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @see #addChangeListener(RendererChangeListener)
      */
     public void removeChangeListener(RendererChangeListener listener) {
-        Args.nullNotPermitted(listener, "listener");
-        this.listenerList.remove(RendererChangeListener.class, listener);
+        abstractRendererProduct.removeChangeListener(listener);
     }
 
     /**
@@ -2674,15 +2630,14 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @return A boolean.
      */
     public boolean hasListener(EventListener listener) {
-        List<Object> list = Arrays.asList(this.listenerList.getListenerList());
-        return list.contains(listener);
+        return abstractRendererProduct.hasListener(listener);
     }
 
     /**
      * Sends a {@link RendererChangeEvent} to all registered listeners.
      */
-    protected void fireChangeEvent() {
-        notifyListeners(new RendererChangeEvent(this));
+    public void fireChangeEvent() {
+        abstractRendererProduct.notifyListeners(new RendererChangeEvent(this));
     }
 
     /**
@@ -2691,12 +2646,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      * @param event  information about the change event.
      */
     public void notifyListeners(RendererChangeEvent event) {
-        Object[] ls = this.listenerList.getListenerList();
-        for (int i = ls.length - 2; i >= 0; i -= 2) {
-            if (ls[i] == RendererChangeListener.class) {
-                ((RendererChangeListener) ls[i + 1]).rendererChanged(event);
-            }
-        }
+        abstractRendererProduct.notifyListeners(event);
     }
 
     /**
@@ -2725,17 +2675,17 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
         if (this.defaultEntityRadius != that.defaultEntityRadius) {
             return false;
         }
-        if (!this.seriesVisibleMap.equals(that.seriesVisibleMap)) {
+        if (!this.abstractRendererProduct2.getSeriesVisibleMap().equals(that.abstractRendererProduct2.getSeriesVisibleMap())) {
             return false;
         }
-        if (this.defaultSeriesVisible != that.defaultSeriesVisible) {
+        if (this.abstractRendererProduct2.getDefaultSeriesVisible() != that.abstractRendererProduct2.getDefaultSeriesVisible()) {
             return false;
         }
-        if (!this.seriesVisibleInLegendMap.equals(that.seriesVisibleInLegendMap)) {
+        if (!this.abstractRendererProduct3.getSeriesVisibleInLegendMap().equals(that.abstractRendererProduct3.getSeriesVisibleInLegendMap())) {
             return false;
         }
-        if (this.defaultSeriesVisibleInLegend
-                != that.defaultSeriesVisibleInLegend) {
+        if (this.abstractRendererProduct3.getDefaultSeriesVisibleInLegend()
+                != that.abstractRendererProduct3.getDefaultSeriesVisibleInLegend()) {
             return false;
         }
         if (!PaintUtils.equal(this.seriesPaintMap, that.seriesPaintMap)) {
@@ -2820,10 +2770,10 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
             return false;
         }
 
-        if (!Objects.equals(this.negativeItemLabelPositionMap, that.negativeItemLabelPositionMap)) {
+        if (!Objects.equals(this.abstractRendererProduct4.getNegativeItemLabelPositionMap(), that.abstractRendererProduct4.getNegativeItemLabelPositionMap())) {
             return false;
         }
-        if (!Objects.equals(this.defaultNegativeItemLabelPosition, that.defaultNegativeItemLabelPosition)) {
+        if (!Objects.equals(this.abstractRendererProduct4.getDefaultNegativeItemLabelPosition(), that.abstractRendererProduct4.getDefaultNegativeItemLabelPosition())) {
             return false;
         }
         if (this.itemLabelAnchorOffset != that.itemLabelAnchorOffset) {
@@ -2865,10 +2815,10 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
     @Override
     public int hashCode() {
         int result = 193;
-        result = HashUtils.hashCode(result, this.seriesVisibleMap);
-        result = HashUtils.hashCode(result, this.defaultSeriesVisible);
-        result = HashUtils.hashCode(result, this.seriesVisibleInLegendMap);
-        result = HashUtils.hashCode(result, this.defaultSeriesVisibleInLegend);
+        result = HashUtils.hashCode(result, this.abstractRendererProduct2.getSeriesVisibleMap());
+        result = HashUtils.hashCode(result, this.abstractRendererProduct2.getDefaultSeriesVisible());
+        result = HashUtils.hashCode(result, this.abstractRendererProduct3.getSeriesVisibleInLegendMap());
+        result = HashUtils.hashCode(result, this.abstractRendererProduct3.getDefaultSeriesVisibleInLegend());
         result = HashUtils.hashCode(result, this.seriesPaintMap);
         result = HashUtils.hashCode(result, this.defaultPaint);
         result = HashUtils.hashCode(result, this.seriesFillPaintMap);
@@ -2908,13 +2858,19 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
     @Override
     protected Object clone() throws CloneNotSupportedException {
         AbstractRenderer clone = (AbstractRenderer) super.clone();
+		clone.abstractRendererProduct4 = (AbstractRendererProduct4) this.abstractRendererProduct4.clone();
+		clone.abstractRendererProduct3 = (AbstractRendererProduct3) this.abstractRendererProduct3.clone();
+		clone.abstractRendererProduct2 = (AbstractRendererProduct2) this.abstractRendererProduct2.clone();
+		clone.abstractRendererProduct = (AbstractRendererProduct) this.abstractRendererProduct.clone();
 
-        if (this.seriesVisibleMap != null) {
-            clone.seriesVisibleMap = new HashMap<>(this.seriesVisibleMap);
+        if (this.abstractRendererProduct2.getSeriesVisibleMap() != null) {
+            clone.abstractRendererProduct2
+					.setSeriesVisibleMap(new HashMap<>(this.abstractRendererProduct2.getSeriesVisibleMap()));
         }
 
-        if (this.seriesVisibleInLegendMap != null) {
-            clone.seriesVisibleInLegendMap = new HashMap<>(this.seriesVisibleInLegendMap);
+        if (this.abstractRendererProduct3.getSeriesVisibleInLegendMap() != null) {
+            clone.abstractRendererProduct3.setSeriesVisibleInLegendMap(
+					new HashMap<>(this.abstractRendererProduct3.getSeriesVisibleInLegendMap()));
         }
 
         // 'paint' : immutable, no need to clone reference
@@ -2973,9 +2929,9 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
                     = new HashMap<>(this.positiveItemLabelPositionMap);
         }
 
-        if (this.negativeItemLabelPositionMap != null) {
-            clone.negativeItemLabelPositionMap 
-                    = new HashMap<>(this.negativeItemLabelPositionMap);
+        if (this.abstractRendererProduct4.getNegativeItemLabelPositionMap() != null) {
+            clone.abstractRendererProduct4.setNegativeItemLabelPositionMap(
+					new HashMap<>(this.abstractRendererProduct4.getNegativeItemLabelPositionMap()));
         }
 
         if (this.seriesCreateEntitiesMap != null) {
@@ -2992,7 +2948,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
         if (this.legendTextPaints != null) {
             clone.legendTextPaints = new HashMap<>(this.legendTextPaints);
         }
-        clone.listenerList = new EventListenerList();
+        clone.abstractRendererProduct.setListenerList(new EventListenerList());
         clone.event = null;
         return clone;
     }
@@ -3006,6 +2962,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
+		stream.writeObject(this.abstractRendererProduct);
         SerialUtils.writeMapOfPaint(this.seriesPaintMap, stream);
         SerialUtils.writePaint(this.defaultPaint, stream);
         SerialUtils.writeMapOfPaint(this.seriesFillPaintMap, stream);
@@ -3034,6 +2991,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
+		this.abstractRendererProduct = (AbstractRendererProduct) stream.readObject();
         this.seriesPaintMap = SerialUtils.readMapOfPaint(stream);
         this.defaultPaint = SerialUtils.readPaint(stream);
         this.seriesFillPaintMap = SerialUtils.readMapOfPaint(stream);
@@ -3053,7 +3011,7 @@ public abstract class AbstractRenderer implements ChartElement, Cloneable, Seria
 
         // listeners are not restored automatically, but storage must be
         // provided...
-        this.listenerList = new EventListenerList();
+        abstractRendererProduct.setListenerList(new EventListenerList());
     }
 
 }

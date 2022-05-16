@@ -94,7 +94,9 @@ import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         implements Cloneable, PublicCloneable, Serializable {
 
-    /** For serialization. */
+    private BoxAndWhiskerRendererProduct boxAndWhiskerRendererProduct = new BoxAndWhiskerRendererProduct();
+
+	/** For serialization. */
     private static final long serialVersionUID = 632027470694481177L;
 
     /** The color used to paint the median line and average marker. */
@@ -123,16 +125,6 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
     private boolean meanVisible;
 
     /**
-     * A flag that controls whether or not the maxOutlier is visible.
-     */
-    private boolean maxOutlierVisible;
-
-    /**
-     * A flag that controls whether or not the minOutlier is visible.
-     */
-    private boolean minOutlierVisible;
-
-    /**
      * A flag that, if {@code true}, causes the whiskers to be drawn
      * using the outline paint for the series.  The default value is
      * {@code false} and in that case the regular series paint is used.
@@ -154,8 +146,8 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         this.maximumBarWidth = 1.0;
         this.medianVisible = true;
         this.meanVisible = true;
-        this.minOutlierVisible = true;
-        this.maxOutlierVisible = true;
+        boxAndWhiskerRendererProduct.setMinOutlierVisible2(true);
+        boxAndWhiskerRendererProduct.setMaxOutlierVisible2(true);
         this.useOutlinePaintForWhiskers = false;
         this.whiskerWidth = 1.0;
         setDefaultLegendShape(new Rectangle2D.Double(-4.0, -4.0, 8.0, 8.0));
@@ -332,7 +324,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
      * @since 1.5.2
      */
     public boolean isMinOutlierVisible() {
-        return this.minOutlierVisible;
+        return this.boxAndWhiskerRendererProduct.getMinOutlierVisible();
     }
 
     /**
@@ -347,11 +339,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
      * @since 1.5.2
      */
     public void setMinOutlierVisible(boolean visible) {
-        if (this.minOutlierVisible == visible) {
-            return;
-        }
-        this.minOutlierVisible = visible;
-        fireChangeEvent();
+        boxAndWhiskerRendererProduct.setMinOutlierVisible(visible, this);
     }
 
     /**
@@ -365,7 +353,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
      * @since 1.5.2
      */
     public boolean isMaxOutlierVisible() {
-        return this.maxOutlierVisible;
+        return this.boxAndWhiskerRendererProduct.getMaxOutlierVisible();
     }
 
     /**
@@ -380,11 +368,7 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
      * @since 1.5.2
      */
     public void setMaxOutlierVisible(boolean visible) {
-        if (this.maxOutlierVisible == visible) {
-            return;
-        }
-        this.maxOutlierVisible = visible;
-        fireChangeEvent();
+        boxAndWhiskerRendererProduct.setMaxOutlierVisible(visible, this);
     }
 
     /**
@@ -1070,10 +1054,10 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         if (this.medianVisible != that.medianVisible) {
             return false;
         }
-        if (this.minOutlierVisible != that.minOutlierVisible) {
+        if (this.boxAndWhiskerRendererProduct.getMinOutlierVisible() != that.boxAndWhiskerRendererProduct.getMinOutlierVisible()) {
             return false;
         }
-        if (this.maxOutlierVisible != that.maxOutlierVisible) {
+        if (this.boxAndWhiskerRendererProduct.getMaxOutlierVisible() != that.boxAndWhiskerRendererProduct.getMaxOutlierVisible()) {
             return false;
         }
         if (this.useOutlinePaintForWhiskers
@@ -1114,5 +1098,11 @@ public class BoxAndWhiskerRenderer extends AbstractCategoryItemRenderer
         stream.defaultReadObject();
         this.artifactPaint = SerialUtils.readPaint(stream);
     }
+
+	public Object clone() throws java.lang.CloneNotSupportedException {
+		BoxAndWhiskerRenderer clone = (BoxAndWhiskerRenderer) super.clone();
+		clone.boxAndWhiskerRendererProduct = (BoxAndWhiskerRendererProduct) this.boxAndWhiskerRendererProduct.clone();
+		return clone;
+	}
 
 }

@@ -74,7 +74,13 @@ import java.util.*;
  */
 public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
 
-    /** For serialization. */
+    private SpiderWebPlotProduct3 spiderWebPlotProduct3 = new SpiderWebPlotProduct3();
+
+	private SpiderWebPlotProduct2 spiderWebPlotProduct2 = new SpiderWebPlotProduct2();
+
+	private SpiderWebPlotProduct spiderWebPlotProduct = new SpiderWebPlotProduct();
+
+	/** For serialization. */
     private static final long serialVersionUID = -5376340422031599463L;
 
     /** The default head radius percent (currently 1%). */
@@ -118,12 +124,6 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      *  the maximum from the data passed in
      */
     public static final double DEFAULT_MAX_VALUE = -1.0;
-
-    /** The head radius as a percentage of the available drawing area. */
-    protected double headPercent;
-
-    /** The space left around the outside of the plot as a percentage. */
-    private double interiorGap;
 
     /** The gap between the labels and the axes as a %age of the radius. */
     private double axisLabelGap;
@@ -175,20 +175,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     /** The default series outline stroke. */
     private transient Stroke defaultSeriesOutlineStroke;
 
-    /** The font used to display the category labels. */
-    private Font labelFont;
-
     /** The color used to draw the category labels. */
     private transient Paint labelPaint;
-
-    /** The label generator. */
-    private CategoryItemLabelGenerator labelGenerator;
-
-    /** controls if the web polygons are filled or not */
-    private boolean webFilled = true;
-
-    /** A tooltip generator for the plot ({@code null} permitted). */
-    private CategoryToolTipGenerator toolTipGenerator;
 
     /** A URL generator for the plot ({@code null} permitted). */
     private CategoryURLGenerator urlGenerator;
@@ -226,12 +214,12 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         }
 
         this.dataExtractOrder = extract;
-        this.headPercent = DEFAULT_HEAD;
+        spiderWebPlotProduct.setHeadPercent2(DEFAULT_HEAD);
         this.axisLabelGap = DEFAULT_AXIS_LABEL_GAP;
         this.axisLinePaint = Color.BLACK;
         this.axisLineStroke = new BasicStroke(1.0f);
 
-        this.interiorGap = DEFAULT_INTERIOR_GAP;
+        spiderWebPlotProduct.setInteriorGap2(DEFAULT_INTERIOR_GAP);
         this.startAngle = DEFAULT_START_ANGLE;
         this.direction = Rotation.CLOCKWISE;
         this.maxValue = DEFAULT_MAX_VALUE;
@@ -245,9 +233,9 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         this.seriesOutlineStrokes = new HashMap<>();
         this.defaultSeriesOutlineStroke = DEFAULT_OUTLINE_STROKE;
 
-        this.labelFont = DEFAULT_LABEL_FONT;
+        spiderWebPlotProduct3.setLabelFont2(DEFAULT_LABEL_FONT);
         this.labelPaint = DEFAULT_LABEL_PAINT;
-        this.labelGenerator = new StandardCategoryItemLabelGenerator();
+        spiderWebPlotProduct3.setLabelGenerator2(new StandardCategoryItemLabelGenerator());
 
         this.legendItemShape = DEFAULT_LEGEND_ITEM_CIRCLE;
     }
@@ -307,7 +295,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setWebFilled(boolean)
      */
     public boolean isWebFilled() {
-        return this.webFilled;
+        return this.spiderWebPlotProduct2.getWebFilled();
     }
 
     /**
@@ -319,8 +307,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #isWebFilled()
      */
     public void setWebFilled(boolean flag) {
-        this.webFilled = flag;
-        fireChangeEvent();
+        spiderWebPlotProduct2.setWebFilled(flag, this);
     }
 
     /**
@@ -359,7 +346,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setHeadPercent(double)
      */
     public double getHeadPercent() {
-        return this.headPercent;
+        return this.spiderWebPlotProduct.getHeadPercent();
     }
 
     /**
@@ -371,9 +358,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getHeadPercent()
      */
     public void setHeadPercent(double percent) {
-        Args.requireNonNegative(percent, "percent");
-        this.headPercent = percent;
-        fireChangeEvent();
+        spiderWebPlotProduct.setHeadPercent(percent, this);
     }
 
     /**
@@ -466,7 +451,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setInteriorGap(double)
      */
     public double getInteriorGap() {
-        return this.interiorGap;
+        return this.spiderWebPlotProduct.getInteriorGap();
     }
 
     /**
@@ -479,14 +464,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getInteriorGap()
      */
     public void setInteriorGap(double percent) {
-        if ((percent < 0.0) || (percent > MAX_INTERIOR_GAP)) {
-            throw new IllegalArgumentException(
-                    "Percentage outside valid range.");
-        }
-        if (this.interiorGap != percent) {
-            this.interiorGap = percent;
-            fireChangeEvent();
-        }
+        spiderWebPlotProduct.setInteriorGap(percent, this);
     }
 
     /**
@@ -768,7 +746,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setLabelFont(Font)
      */
     public Font getLabelFont() {
-        return this.labelFont;
+        return this.spiderWebPlotProduct3.getLabelFont();
     }
 
     /**
@@ -780,9 +758,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getLabelFont()
      */
     public void setLabelFont(Font font) {
-        Args.nullNotPermitted(font, "font");
-        this.labelFont = font;
-        fireChangeEvent();
+        spiderWebPlotProduct3.setLabelFont(font, this);
     }
 
     /**
@@ -818,7 +794,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setLabelGenerator(CategoryItemLabelGenerator)
      */
     public CategoryItemLabelGenerator getLabelGenerator() {
-        return this.labelGenerator;
+        return this.spiderWebPlotProduct3.getLabelGenerator();
     }
 
     /**
@@ -830,8 +806,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getLabelGenerator()
      */
     public void setLabelGenerator(CategoryItemLabelGenerator generator) {
-        Args.nullNotPermitted(generator, "generator");
-        this.labelGenerator = generator;
+        spiderWebPlotProduct3.setLabelGenerator(generator);
     }
 
     /**
@@ -842,7 +817,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #setToolTipGenerator(CategoryToolTipGenerator)
      */
     public CategoryToolTipGenerator getToolTipGenerator() {
-        return this.toolTipGenerator;
+        return this.spiderWebPlotProduct2.getToolTipGenerator();
     }
 
     /**
@@ -854,8 +829,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      * @see #getToolTipGenerator()
      */
     public void setToolTipGenerator(CategoryToolTipGenerator generator) {
-        this.toolTipGenerator = generator;
-        fireChangeEvent();
+        spiderWebPlotProduct2.setToolTipGenerator(generator, this);
     }
 
     /**
@@ -908,22 +882,26 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         Iterator iterator = keys.iterator();
         Shape shape = getLegendItemShape();
         while (iterator.hasNext()) {
-            Comparable key = (Comparable) iterator.next();
-            String label = key.toString();
-            String description = label;
-            Paint paint = getSeriesPaint(series);
-            Paint outlinePaint = getSeriesOutlinePaint(series);
-            Stroke stroke = getSeriesOutlineStroke(series);
-            LegendItem item = new LegendItem(label, description,
-                    null, null, shape, paint, stroke, outlinePaint);
-            item.setDataset(getDataset());
-            item.setSeriesKey(key);
-            item.setSeriesIndex(series);
-            result.add(item);
+            LegendItem item = item(series, iterator, shape);
+			result.add(item);
             series++;
         }
         return result;
     }
+
+	private LegendItem item(int series, Iterator iterator, Shape shape) {
+		Comparable key = (Comparable) iterator.next();
+		String label = key.toString();
+		String description = label;
+		Paint paint = getSeriesPaint(series);
+		Paint outlinePaint = getSeriesOutlinePaint(series);
+		Stroke stroke = getSeriesOutlineStroke(series);
+		LegendItem item = new LegendItem(label, description, null, null, shape, paint, stroke, outlinePaint);
+		item.setDataset(getDataset());
+		item.setSeriesKey(key);
+		item.setSeriesIndex(series);
+		return item;
+	}
 
     /**
      * Returns a cartesian point from a polar angle, length and bounding box
@@ -1007,8 +985,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
             double W = area.getWidth() - gapHorizontal;
             double H = area.getHeight() - gapVertical;
 
-            double headW = area.getWidth() * this.headPercent;
-            double headH = area.getHeight() * this.headPercent;
+            double headW = area.getWidth() * this.spiderWebPlotProduct.getHeadPercent();
+            double headH = area.getHeight() * this.spiderWebPlotProduct.getHeadPercent();
 
             // make the chart area a square
             double min = Math.min(W, H) / 2;
@@ -1140,35 +1118,8 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
                     g2.draw(head);
 
                     if (entities != null) {
-                        int row, col;
-                        if (this.dataExtractOrder == TableOrder.BY_ROW) {
-                            row = series;
-                            col = cat;
-                        } else {
-                            row = cat;
-                            col = series;
-                        }
-                        String tip = null;
-                        if (this.toolTipGenerator != null) {
-                            tip = this.toolTipGenerator.generateToolTip(
-                                    this.dataset, row, col);
-                        }
-
-                        String url = null;
-                        if (this.urlGenerator != null) {
-                            url = this.urlGenerator.generateURL(this.dataset,
-                                   row, col);
-                        }
-
-                        Shape area = new Rectangle(
-                                (int) (point.getX() - headW),
-                                (int) (point.getY() - headH),
-                                (int) (headW * 2), (int) (headH * 2));
-                        CategoryItemEntity entity = new CategoryItemEntity(
-                                area, tip, url, this.dataset,
-                                this.dataset.getRowKey(row),
-                                this.dataset.getColumnKey(col));
-                        entities.add(entity);
+                        CategoryItemEntity entity = entity(series, headH, headW, cat, point);
+						entities.add(entity);
                     }
 
                 }
@@ -1183,7 +1134,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
 
         // Lastly, fill the web polygon if this is required
 
-        if (this.webFilled) {
+        if (this.spiderWebPlotProduct2.getWebFilled()) {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                     0.1f));
             g2.fill(polygon);
@@ -1191,6 +1142,30 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
                     getForegroundAlpha()));
         }
     }
+
+	private CategoryItemEntity entity(int series, double headH, double headW, int cat, Point2D point) {
+		int row, col;
+		if (this.dataExtractOrder == TableOrder.BY_ROW) {
+			row = series;
+			col = cat;
+		} else {
+			row = cat;
+			col = series;
+		}
+		String tip = null;
+		if (this.spiderWebPlotProduct2.getToolTipGenerator() != null) {
+			tip = this.spiderWebPlotProduct2.getToolTipGenerator().generateToolTip(this.dataset, row, col);
+		}
+		String url = null;
+		if (this.urlGenerator != null) {
+			url = this.urlGenerator.generateURL(this.dataset, row, col);
+		}
+		Shape area = new Rectangle((int) (point.getX() - headW), (int) (point.getY() - headH), (int) (headW * 2),
+				(int) (headH * 2));
+		CategoryItemEntity entity = new CategoryItemEntity(area, tip, url, this.dataset, this.dataset.getRowKey(row),
+				this.dataset.getColumnKey(col));
+		return entity;
+	}
 
     /**
      * Returns the value to be plotted at the intersection of the
@@ -1233,10 +1208,10 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         String label;
         if (this.dataExtractOrder == TableOrder.BY_ROW) {
             // if series are in rows, then the categories are the column keys
-            label = this.labelGenerator.generateColumnLabel(this.dataset, cat);
+            label = this.spiderWebPlotProduct3.getLabelGenerator().generateColumnLabel(this.dataset, cat);
         } else {
             // if series are in columns, then the categories are the row keys
-            label = this.labelGenerator.generateRowLabel(this.dataset, cat);
+            label = this.spiderWebPlotProduct3.getLabelGenerator().generateRowLabel(this.dataset, cat);
         }
 
         Rectangle2D labelBounds = getLabelFont().getStringBounds(label, frc);
@@ -1316,10 +1291,10 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         if (!this.dataExtractOrder.equals(that.dataExtractOrder)) {
             return false;
         }
-        if (this.headPercent != that.headPercent) {
+        if (this.spiderWebPlotProduct.getHeadPercent() != that.spiderWebPlotProduct.getHeadPercent()) {
             return false;
         }
-        if (this.interiorGap != that.interiorGap) {
+        if (this.spiderWebPlotProduct.getInteriorGap() != that.spiderWebPlotProduct.getInteriorGap()) {
             return false;
         }
         if (this.startAngle != that.startAngle) {
@@ -1331,7 +1306,7 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         if (this.maxValue != that.maxValue) {
             return false;
         }
-        if (this.webFilled != that.webFilled) {
+        if (this.spiderWebPlotProduct2.getWebFilled() != that.spiderWebPlotProduct2.getWebFilled()) {
             return false;
         }
         if (this.axisLabelGap != that.axisLabelGap) {
@@ -1366,16 +1341,16 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
         if (!this.defaultSeriesOutlineStroke.equals(that.defaultSeriesOutlineStroke)) {
             return false;
         }
-        if (!this.labelFont.equals(that.labelFont)) {
+        if (!this.spiderWebPlotProduct3.getLabelFont().equals(that.spiderWebPlotProduct3.getLabelFont())) {
             return false;
         }
         if (!PaintUtils.equal(this.labelPaint, that.labelPaint)) {
             return false;
         }
-        if (!this.labelGenerator.equals(that.labelGenerator)) {
+        if (!this.spiderWebPlotProduct3.getLabelGenerator().equals(that.spiderWebPlotProduct3.getLabelGenerator())) {
             return false;
         }
-        if (!Objects.equals(this.toolTipGenerator, that.toolTipGenerator)) {
+        if (!Objects.equals(this.spiderWebPlotProduct2.getToolTipGenerator(), that.spiderWebPlotProduct2.getToolTipGenerator())) {
             return false;
         }
         if (!Objects.equals(this.urlGenerator, that.urlGenerator)) {
@@ -1395,6 +1370,9 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
     @Override
     public Object clone() throws CloneNotSupportedException {
         SpiderWebPlot clone = (SpiderWebPlot) super.clone();
+		clone.spiderWebPlotProduct3 = (SpiderWebPlotProduct3) this.spiderWebPlotProduct3.clone();
+		clone.spiderWebPlotProduct2 = (SpiderWebPlotProduct2) this.spiderWebPlotProduct2.clone();
+		clone.spiderWebPlotProduct = (SpiderWebPlotProduct) this.spiderWebPlotProduct.clone();
         clone.legendItemShape = CloneUtils.clone(this.legendItemShape);
         clone.seriesPaints = CloneUtils.cloneMapValues(this.seriesPaints);
         clone.seriesOutlinePaints = CloneUtils.cloneMapValues(this.seriesOutlinePaints);
@@ -1434,21 +1412,24 @@ public class SpiderWebPlot extends Plot implements Cloneable, Serializable {
      */
     private void readObject(ObjectInputStream stream) throws IOException,
             ClassNotFoundException {
-        stream.defaultReadObject();
-
-        this.legendItemShape = SerialUtils.readShape(stream);
-        this.seriesPaints = SerialUtils.readMapOfPaint(stream);
-        this.defaultSeriesPaint = SerialUtils.readPaint(stream);
-        this.seriesOutlinePaints = SerialUtils.readMapOfPaint(stream);
-        this.defaultSeriesOutlinePaint = SerialUtils.readPaint(stream);
-        this.seriesOutlineStrokes = SerialUtils.readMapOfStroke(stream);
-        this.defaultSeriesOutlineStroke = SerialUtils.readStroke(stream);
-        this.labelPaint = SerialUtils.readPaint(stream);
-        this.axisLinePaint = SerialUtils.readPaint(stream);
-        this.axisLineStroke = SerialUtils.readStroke(stream);
-        if (this.dataset != null) {
+        stream(stream);
+		if (this.dataset != null) {
             this.dataset.addChangeListener(this);
         }
     }
+
+	private void stream(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		this.legendItemShape = SerialUtils.readShape(stream);
+		this.seriesPaints = SerialUtils.readMapOfPaint(stream);
+		this.defaultSeriesPaint = SerialUtils.readPaint(stream);
+		this.seriesOutlinePaints = SerialUtils.readMapOfPaint(stream);
+		this.defaultSeriesOutlinePaint = SerialUtils.readPaint(stream);
+		this.seriesOutlineStrokes = SerialUtils.readMapOfStroke(stream);
+		this.defaultSeriesOutlineStroke = SerialUtils.readStroke(stream);
+		this.labelPaint = SerialUtils.readPaint(stream);
+		this.axisLinePaint = SerialUtils.readPaint(stream);
+		this.axisLineStroke = SerialUtils.readStroke(stream);
+	}
 
 }

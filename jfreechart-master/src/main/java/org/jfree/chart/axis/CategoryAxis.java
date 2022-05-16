@@ -1400,4 +1400,20 @@ public class CategoryAxis extends Axis implements Cloneable, Serializable {
         }
     }
 
+	/**
+	 * Calculates the available space for each series.
+	 * @param space   the space along the entire axis (in Java2D units).
+	 * @param categories   the number of categories.
+	 * @param series   the number of series.
+	 * @param itemMargin
+	 * @return  The width of one series.
+	 */
+	public double calculateSeriesWidth(double space, int categories, int series, double itemMargin) {
+		double factor = 1.0 - itemMargin - getLowerMargin() - getUpperMargin();
+		if (categories > 1) {
+			factor = factor - getCategoryMargin();
+		}
+		return (space * factor) / (categories * series);
+	}
+
 }

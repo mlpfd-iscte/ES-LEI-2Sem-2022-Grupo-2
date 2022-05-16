@@ -47,6 +47,7 @@ import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.internal.Args;
 import org.jfree.chart.internal.SerialUtils;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.text.TextUtils;
 import org.jfree.chart.util.AttrStringUtils;
 import org.jfree.data.Range;
@@ -1668,5 +1669,65 @@ public abstract class ValueAxis extends Axis
         this.leftArrow = SerialUtils.readShape(stream);
         this.rightArrow = SerialUtils.readShape(stream);
     }
+
+	/**
+	 * Draws a domain crosshair.
+	 * @param g2   the graphics target.
+	 * @param dataArea   the data area.
+	 * @param orientation   the plot orientation.
+	 * @param value   the crosshair value.
+	 * @param stroke   the stroke used to draw the crosshair line.
+	 * @param paint   the paint used to draw the crosshair line.
+	 */
+	public void drawDomainCrosshair(Graphics2D g2, Rectangle2D dataArea, PlotOrientation orientation, double value,
+			Stroke stroke, Paint paint) {
+		if (!getRange().contains(value)) {
+			return;
+		}
+		Line2D line;
+		if (orientation == PlotOrientation.VERTICAL) {
+			double xx = valueToJava2D(value, dataArea, RectangleEdge.BOTTOM);
+			line = new Line2D.Double(xx, dataArea.getMinY(), xx, dataArea.getMaxY());
+		} else {
+			double yy = valueToJava2D(value, dataArea, RectangleEdge.LEFT);
+			line = new Line2D.Double(dataArea.getMinX(), yy, dataArea.getMaxX(), yy);
+		}
+		Object saved = g2.getRenderingHint(RenderingHints.KEY_STROKE_CONTROL);
+		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+		g2.setStroke(stroke);
+		g2.setPaint(paint);
+		g2.draw(line);
+		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, saved);
+	}
+
+	/**
+	 * Draws a range crosshair.
+	 * @param g2   the graphics target.
+	 * @param dataArea   the data area.
+	 * @param orientation   the plot orientation.
+	 * @param value   the crosshair value.
+	 * @param stroke   the stroke used to draw the crosshair line.
+	 * @param paint   the paint used to draw the crosshair line.
+	 */
+	public void drawRangeCrosshair(Graphics2D g2, Rectangle2D dataArea, PlotOrientation orientation, double value,
+			Stroke stroke, Paint paint) {
+		if (!getRange().contains(value)) {
+			return;
+		}
+		Object saved = g2.getRenderingHint(RenderingHints.KEY_STROKE_CONTROL);
+		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+		Line2D line;
+		if (orientation == PlotOrientation.HORIZONTAL) {
+			double xx = valueToJava2D(value, dataArea, RectangleEdge.BOTTOM);
+			line = new Line2D.Double(xx, dataArea.getMinY(), xx, dataArea.getMaxY());
+		} else {
+			double yy = valueToJava2D(value, dataArea, RectangleEdge.LEFT);
+			line = new Line2D.Double(dataArea.getMinX(), yy, dataArea.getMaxX(), yy);
+		}
+		g2.setStroke(stroke);
+		g2.setPaint(paint);
+		g2.draw(line);
+		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, saved);
+	}
 
 }

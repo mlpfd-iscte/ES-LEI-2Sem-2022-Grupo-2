@@ -557,23 +557,8 @@ public class RingPlot extends PiePlot implements Cloneable, Serializable {
                 if (state.getInfo() != null) {
                     EntityCollection entities = state.getEntityCollection();
                     if (entities != null) {
-                        String tip = null;
-                        PieToolTipGenerator toolTipGenerator
-                                = getToolTipGenerator();
-                        if (toolTipGenerator != null) {
-                            tip = toolTipGenerator.generateToolTip(dataset,
-                                    key);
-                        }
-                        String url = null;
-                        PieURLGenerator urlGenerator = getURLGenerator();
-                        if (urlGenerator != null) {
-                            url = urlGenerator.generateURL(dataset, key,
-                                    getPieIndex());
-                        }
-                        PieSectionEntity entity = new PieSectionEntity(path,
-                                dataset, getPieIndex(), section, key, tip,
-                                url);
-                        entities.add(entity);
+                        PieSectionEntity entity = entity(section, dataset, key, path);
+						entities.add(entity);
                     }
                 }
             }
@@ -590,6 +575,21 @@ public class RingPlot extends PiePlot implements Cloneable, Serializable {
         }
         state.setLatestAngle(angle2);
     }
+
+	private PieSectionEntity entity(int section, PieDataset dataset, Comparable key, GeneralPath path) {
+		String tip = null;
+		PieToolTipGenerator toolTipGenerator = getToolTipGenerator();
+		if (toolTipGenerator != null) {
+			tip = toolTipGenerator.generateToolTip(dataset, key);
+		}
+		String url = null;
+		PieURLGenerator urlGenerator = getURLGenerator();
+		if (urlGenerator != null) {
+			url = urlGenerator.generateURL(dataset, key, getPieIndex());
+		}
+		PieSectionEntity entity = new PieSectionEntity(path, dataset, getPieIndex(), section, key, tip, url);
+		return entity;
+	}
 
     /**
      * This method overrides the default value for cases where the ring plot
