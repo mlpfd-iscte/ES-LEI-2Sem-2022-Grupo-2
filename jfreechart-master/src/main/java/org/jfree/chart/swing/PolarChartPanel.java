@@ -127,24 +127,24 @@ public class PolarChartPanel extends ChartPanel {
 
        JPopupMenu result = super.createPopupMenu(properties, copy, save, print, zoom);
        int zoomInIndex = getPopupMenuItem(result,
-               localizationResources.getString("Zoom_In"));
+               getLocalizationResources().getString("Zoom_In"));
        int zoomOutIndex = getPopupMenuItem(result,
-               localizationResources.getString("Zoom_Out"));
+               getLocalizationResources().getString("Zoom_Out"));
        int autoIndex = getPopupMenuItem(result,
-               localizationResources.getString("Auto_Range"));
+               getLocalizationResources().getString("Auto_Range"));
        if (zoom) {
            JMenuItem zoomIn = new JMenuItem(
-                   localizationResources.getString("Zoom_In"));
+                   getLocalizationResources().getString("Zoom_In"));
            zoomIn.setActionCommand(POLAR_ZOOM_IN_ACTION_COMMAND);
            zoomIn.addActionListener(this);
 
            JMenuItem zoomOut = new JMenuItem(
-                   localizationResources.getString("Zoom_Out"));
+                   getLocalizationResources().getString("Zoom_Out"));
            zoomOut.setActionCommand(POLAR_ZOOM_OUT_ACTION_COMMAND);
            zoomOut.addActionListener(this);
 
            JMenuItem auto = new JMenuItem(
-                   localizationResources.getString("Auto_Range"));
+                   getLocalizationResources().getString("Auto_Range"));
            auto.setActionCommand(POLAR_AUTO_RANGE_ACTION_COMMAND);
            auto.addActionListener(this);
 

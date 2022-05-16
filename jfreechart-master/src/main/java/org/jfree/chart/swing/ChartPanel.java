@@ -379,7 +379,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
     protected boolean zoomAroundAnchor;
 
     /** The resourceBundle for the localization. */
-    protected static ResourceBundle localizationResources
+    private static ResourceBundle localizationResources
             = ResourceBundle.getBundle("org.jfree.chart.LocalizationBundle");
 
     /** 
@@ -1562,7 +1562,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
 
         switch (command) {
         case PROPERTIES_COMMAND:
-            doEditChartProperties();
+            ChartEditorManager.doEditChartProperties(this);
             break;
         case COPY_COMMAND:
             doCopy();
@@ -1572,7 +1572,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
                 doSaveAs();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "I/O error occurred.",
-                        localizationResources.getString("Save_as_PNG"), JOptionPane.WARNING_MESSAGE);
+                        getLocalizationResources().getString("Save_as_PNG"), JOptionPane.WARNING_MESSAGE);
             }
             break;
         case SAVE_AS_PNG_SIZE_COMMAND:
@@ -1581,7 +1581,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
                 doSaveAs(ss.width, ss.height);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(ChartPanel.this, "I/O error occurred.",
-                        localizationResources.getString("Save_as_PNG"), JOptionPane.WARNING_MESSAGE);
+                        getLocalizationResources().getString("Save_as_PNG"), JOptionPane.WARNING_MESSAGE);
             }
             break;
         case SAVE_AS_SVG_COMMAND:
@@ -1589,7 +1589,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
                 saveAsSVG(null);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "I/O error occurred.",
-                        localizationResources.getString("Save_as_SVG"), JOptionPane.WARNING_MESSAGE);
+                        getLocalizationResources().getString("Save_as_SVG"), JOptionPane.WARNING_MESSAGE);
             }
             break;
         case SAVE_AS_PDF_COMMAND:
@@ -1968,12 +1968,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
 
         // we can only generate events if the panel's chart is not null
         // (see bug report 1556951)
-        if (this.chart != null) {
-            ChartMouseEvent event = new ChartMouseEvent(getChart(), e, entity);
-            for (int i = listeners.length - 1; i >= 0; i -= 1) {
-                ((ChartMouseListener) listeners[i]).chartMouseMoved(event);
-            }
-        }
+        ChartMouseEvent.checkChart(null, e, entity, listeners);
 
     }
 
@@ -2380,23 +2375,6 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
         this.zoomOutFactor = factor;
     }
 
-
-    /**
-     * Displays a dialog that allows the user to edit the properties for the
-     * current chart.
-     */
-    public void doEditChartProperties() {
-
-        ChartEditor editor = ChartEditorManager.getChartEditor(this.chart);
-        int result = JOptionPane.showConfirmDialog(this, editor,
-                localizationResources.getString("Chart_Properties"),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            editor.updateChart(this.chart);
-        }
-
-    }
-
     /**
      * Copies the current chart to the system clipboard.
      */
@@ -2437,7 +2415,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(this.defaultDirectoryForSaveAs);
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    localizationResources.getString("PNG_Image_Files"), "png");
+                    getLocalizationResources().getString("PNG_Image_Files"), "png");
         fileChooser.addChoosableFileFilter(filter);
         fileChooser.setFileFilter(filter);
 
@@ -2475,7 +2453,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(this.defaultDirectoryForSaveAs);
             FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    localizationResources.getString("SVG_Files"), "svg");
+                    getLocalizationResources().getString("SVG_Files"), "svg");
             fileChooser.addChoosableFileFilter(filter);
             fileChooser.setFileFilter(filter);
 
@@ -2489,11 +2467,11 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
                 }
                 file = new File(filename);
                 if (file.exists()) {
-                    String fileExists = localizationResources.getString(
+                    String fileExists = getLocalizationResources().getString(
                             "FILE_EXISTS_CONFIRM_OVERWRITE");
                     int response = JOptionPane.showConfirmDialog(this, 
                             fileExists,
-                            localizationResources.getString("Save_as_SVG"),
+                            getLocalizationResources().getString("Save_as_SVG"),
                             JOptionPane.OK_CANCEL_OPTION);
                     if (response == JOptionPane.CANCEL_OPTION) {
                         file = null;
@@ -2595,7 +2573,7 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(this.defaultDirectoryForSaveAs);
             FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                    localizationResources.getString("PDF_Files"), "pdf");
+                    getLocalizationResources().getString("PDF_Files"), "pdf");
             fileChooser.addChoosableFileFilter(filter);
             fileChooser.setFileFilter(filter);
 
@@ -2609,11 +2587,11 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
                 }
                 file = new File(filename);
                 if (file.exists()) {
-                    String fileExists = localizationResources.getString(
+                    String fileExists = getLocalizationResources().getString(
                             "FILE_EXISTS_CONFIRM_OVERWRITE");
                     int response = JOptionPane.showConfirmDialog(this, 
                             fileExists,
-                            localizationResources.getString("Save_as_PDF"),
+                            getLocalizationResources().getString("Save_as_PDF"),
                             JOptionPane.OK_CANCEL_OPTION);
                     if (response == JOptionPane.CANCEL_OPTION) {
                         file = null;
@@ -2831,6 +2809,14 @@ public class ChartPanel extends JPanel implements ChartChangeListener,
         }
 
     }
+
+	public static ResourceBundle getLocalizationResources() {
+		return localizationResources;
+	}
+
+	public static void setLocalizationResources(ResourceBundle localizationResources) {
+		ChartPanel.localizationResources = localizationResources;
+	}
 
 }
 

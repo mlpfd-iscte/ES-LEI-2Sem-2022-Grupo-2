@@ -147,9 +147,7 @@ public class UIUtils {
         for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
             TableColumn column = table.getColumnModel().getColumn(columnIndex);
             Class c = model.getColumnClass(columnIndex);
-            if (c.equals(Number.class)) {
-                column.setCellRenderer(new NumberCellRenderer());
-            }
+            NumberCellRenderer.collumnSetCellRenderer(c, column);
         }
         panel.add(new JScrollPane(table));
         return panel;

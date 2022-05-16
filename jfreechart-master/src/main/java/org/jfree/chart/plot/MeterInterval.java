@@ -38,8 +38,10 @@ package org.jfree.chart.plot;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -145,15 +147,6 @@ public class MeterInterval implements Serializable {
     }
 
     /**
-     * Returns the outline stroke.
-     *
-     * @return The outline stroke (possibly {@code null}).
-     */
-    public Stroke getOutlineStroke() {
-        return this.outlineStroke;
-    }
-
-    /**
      * Checks this instance for equality with an arbitrary object.
      *
      * @param obj  the object ({@code null} permitted).
@@ -215,6 +208,35 @@ public class MeterInterval implements Serializable {
         this.outlinePaint = SerialUtils.readPaint(stream);
         this.outlineStroke = SerialUtils.readStroke(stream);
         this.backgroundPaint = SerialUtils.readPaint(stream);
+    }
+    
+    /**
+     * Draws the arc to represent an interval.
+     *
+     * @param g2  the graphics device.
+     * @param meterArea  the drawing area.
+     * @param interval  the interval.
+     */
+    static void drawArcForInterval(Graphics2D g2, Rectangle2D meterArea,
+                                      MeterInterval interval, MeterPlot mp) {
+
+        double minValue = interval.getRange().getLowerBound();
+        double maxValue = interval.getRange().getUpperBound();
+        Paint outlinePaint = interval.getOutlinePaint();
+        Stroke outlineStroke = interval.outlineStroke;
+        Paint backgroundPaint = interval.getBackgroundPaint();
+
+        if (backgroundPaint != null) {
+            mp.getMeterPlotProduct2().fillArc(g2, meterArea, minValue, maxValue, backgroundPaint, false);
+        }
+        if (outlinePaint != null) {
+            if (outlineStroke != null) {
+                mp.drawArc(g2, meterArea, minValue, maxValue, outlinePaint,
+                        outlineStroke);
+            }
+            mp.drawTick(g2, meterArea, minValue, true);
+            mp.drawTick(g2, meterArea, maxValue, true);
+        }
     }
 
 }

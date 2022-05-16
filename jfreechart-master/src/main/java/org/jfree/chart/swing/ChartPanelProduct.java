@@ -34,10 +34,10 @@ public class ChartPanelProduct implements Serializable {
 	*/
 	public JPopupMenu createPopupMenu(boolean properties, boolean copy, boolean save, boolean print, boolean zoom,
 			ChartPanel chartPanel) {
-		JPopupMenu result = new JPopupMenu(ChartPanel.localizationResources.getString("Chart") + ":");
+		JPopupMenu result = new JPopupMenu(ChartPanel.getLocalizationResources().getString("Chart") + ":");
 		boolean separator = false;
 		if (properties) {
-			JMenuItem propertiesItem = new JMenuItem(ChartPanel.localizationResources.getString("Properties..."));
+			JMenuItem propertiesItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Properties..."));
 			propertiesItem.setActionCommand(ChartPanel.PROPERTIES_COMMAND);
 			propertiesItem.addActionListener(chartPanel);
 			result.add(propertiesItem);
@@ -47,7 +47,7 @@ public class ChartPanelProduct implements Serializable {
 			if (separator) {
 				result.addSeparator();
 			}
-			JMenuItem copyItem = new JMenuItem(ChartPanel.localizationResources.getString("Copy"));
+			JMenuItem copyItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Copy"));
 			copyItem.setActionCommand(ChartPanel.COPY_COMMAND);
 			copyItem.addActionListener(chartPanel);
 			result.add(copyItem);
@@ -57,9 +57,9 @@ public class ChartPanelProduct implements Serializable {
 			if (separator) {
 				result.addSeparator();
 			}
-			JMenu saveSubMenu = new JMenu(ChartPanel.localizationResources.getString("Save_as"));
+			JMenu saveSubMenu = new JMenu(ChartPanel.getLocalizationResources().getString("Save_as"));
 			{
-				JMenuItem pngItem = new JMenuItem(ChartPanel.localizationResources.getString("PNG..."));
+				JMenuItem pngItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("PNG..."));
 				pngItem.setActionCommand(ChartPanel.SAVE_AS_PNG_COMMAND);
 				pngItem.addActionListener(chartPanel);
 				saveSubMenu.add(pngItem);
@@ -73,13 +73,13 @@ public class ChartPanelProduct implements Serializable {
 				saveSubMenu.add(pngItem);
 			}
 			if (ChartUtils.isJFreeSVGAvailable()) {
-				JMenuItem svgItem = new JMenuItem(ChartPanel.localizationResources.getString("SVG..."));
+				JMenuItem svgItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("SVG..."));
 				svgItem.setActionCommand(ChartPanel.SAVE_AS_SVG_COMMAND);
 				svgItem.addActionListener(chartPanel);
 				saveSubMenu.add(svgItem);
 			}
 			if (ChartUtils.isOrsonPDFAvailable()) {
-				JMenuItem pdfItem = new JMenuItem(ChartPanel.localizationResources.getString("PDF..."));
+				JMenuItem pdfItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("PDF..."));
 				pdfItem.setActionCommand(ChartPanel.SAVE_AS_PDF_COMMAND);
 				pdfItem.addActionListener(chartPanel);
 				saveSubMenu.add(pdfItem);
@@ -91,7 +91,7 @@ public class ChartPanelProduct implements Serializable {
 			if (separator) {
 				result.addSeparator();
 			}
-			JMenuItem printItem = new JMenuItem(ChartPanel.localizationResources.getString("Print..."));
+			JMenuItem printItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Print..."));
 			printItem.setActionCommand(ChartPanel.PRINT_COMMAND);
 			printItem.addActionListener(chartPanel);
 			result.add(printItem);
@@ -101,47 +101,47 @@ public class ChartPanelProduct implements Serializable {
 			if (separator) {
 				result.addSeparator();
 			}
-			JMenu zoomInMenu = new JMenu(ChartPanel.localizationResources.getString("Zoom_In"));
-			this.zoomInBothMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("All_Axes"));
+			JMenu zoomInMenu = new JMenu(ChartPanel.getLocalizationResources().getString("Zoom_In"));
+			this.zoomInBothMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("All_Axes"));
 			this.zoomInBothMenuItem.setActionCommand(ChartPanel.ZOOM_IN_BOTH_COMMAND);
 			this.zoomInBothMenuItem.addActionListener(chartPanel);
 			zoomInMenu.add(this.zoomInBothMenuItem);
 			zoomInMenu.addSeparator();
-			this.zoomInDomainMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Domain_Axis"));
+			this.zoomInDomainMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Domain_Axis"));
 			this.zoomInDomainMenuItem.setActionCommand(ChartPanel.ZOOM_IN_DOMAIN_COMMAND);
 			this.zoomInDomainMenuItem.addActionListener(chartPanel);
 			zoomInMenu.add(this.zoomInDomainMenuItem);
-			this.zoomInRangeMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Range_Axis"));
+			this.zoomInRangeMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Range_Axis"));
 			this.zoomInRangeMenuItem.setActionCommand(ChartPanel.ZOOM_IN_RANGE_COMMAND);
 			this.zoomInRangeMenuItem.addActionListener(chartPanel);
 			zoomInMenu.add(this.zoomInRangeMenuItem);
 			result.add(zoomInMenu);
-			JMenu zoomOutMenu = new JMenu(ChartPanel.localizationResources.getString("Zoom_Out"));
-			this.zoomOutBothMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("All_Axes"));
+			JMenu zoomOutMenu = new JMenu(ChartPanel.getLocalizationResources().getString("Zoom_Out"));
+			this.zoomOutBothMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("All_Axes"));
 			this.zoomOutBothMenuItem.setActionCommand(ChartPanel.ZOOM_OUT_BOTH_COMMAND);
 			this.zoomOutBothMenuItem.addActionListener(chartPanel);
 			zoomOutMenu.add(this.zoomOutBothMenuItem);
 			zoomOutMenu.addSeparator();
-			this.zoomOutDomainMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Domain_Axis"));
+			this.zoomOutDomainMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Domain_Axis"));
 			this.zoomOutDomainMenuItem.setActionCommand(ChartPanel.ZOOM_OUT_DOMAIN_COMMAND);
 			this.zoomOutDomainMenuItem.addActionListener(chartPanel);
 			zoomOutMenu.add(this.zoomOutDomainMenuItem);
-			this.zoomOutRangeMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Range_Axis"));
+			this.zoomOutRangeMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Range_Axis"));
 			this.zoomOutRangeMenuItem.setActionCommand(ChartPanel.ZOOM_OUT_RANGE_COMMAND);
 			this.zoomOutRangeMenuItem.addActionListener(chartPanel);
 			zoomOutMenu.add(this.zoomOutRangeMenuItem);
 			result.add(zoomOutMenu);
-			JMenu autoRangeMenu = new JMenu(ChartPanel.localizationResources.getString("Auto_Range"));
-			this.zoomResetBothMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("All_Axes"));
+			JMenu autoRangeMenu = new JMenu(ChartPanel.getLocalizationResources().getString("Auto_Range"));
+			this.zoomResetBothMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("All_Axes"));
 			this.zoomResetBothMenuItem.setActionCommand(ChartPanel.ZOOM_RESET_BOTH_COMMAND);
 			this.zoomResetBothMenuItem.addActionListener(chartPanel);
 			autoRangeMenu.add(this.zoomResetBothMenuItem);
 			autoRangeMenu.addSeparator();
-			this.zoomResetDomainMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Domain_Axis"));
+			this.zoomResetDomainMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Domain_Axis"));
 			this.zoomResetDomainMenuItem.setActionCommand(ChartPanel.ZOOM_RESET_DOMAIN_COMMAND);
 			this.zoomResetDomainMenuItem.addActionListener(chartPanel);
 			autoRangeMenu.add(this.zoomResetDomainMenuItem);
-			this.zoomResetRangeMenuItem = new JMenuItem(ChartPanel.localizationResources.getString("Range_Axis"));
+			this.zoomResetRangeMenuItem = new JMenuItem(ChartPanel.getLocalizationResources().getString("Range_Axis"));
 			this.zoomResetRangeMenuItem.setActionCommand(ChartPanel.ZOOM_RESET_RANGE_COMMAND);
 			this.zoomResetRangeMenuItem.addActionListener(chartPanel);
 			autoRangeMenu.add(this.zoomResetRangeMenuItem);

@@ -36,8 +36,11 @@
 
 package org.jfree.chart.swing.editor;
 
+import javax.swing.JOptionPane;
+
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.internal.Args;
+import org.jfree.chart.swing.ChartPanel;
 
 /**
  * The central point for obtaining {@link ChartEditor} instances for editing
@@ -86,4 +89,21 @@ public class ChartEditorManager {
     public static ChartEditor getChartEditor(JFreeChart chart) {
         return factory.createEditor(chart);
     }
+    
+    /**
+     * Displays a dialog that allows the user to edit the properties for the
+     * current chart.
+     */
+    public static void doEditChartProperties(ChartPanel chart) {
+
+        ChartEditor editor = getChartEditor(chart.getChart());
+        int result = JOptionPane.showConfirmDialog(chart, editor,
+                chart.getLocalizationResources().getString("Chart_Properties"),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            editor.updateChart(chart.getChart());
+        }
+
+    }
+    
 }

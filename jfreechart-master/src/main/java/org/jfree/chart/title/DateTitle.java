@@ -145,21 +145,5 @@ public class DateTitle extends TextTitle implements Serializable {
                 padding);
     }
 
-    /**
-     * Set the format of the date.
-     * <P>
-     * The date style should be one of:  {@code SHORT},
-     * {@code MEDIUM}, {@code LONG} or {@code FULL} (defined
-     * in {@code java.util.DateFormat}).
-     * <P>
-     * For the locale, you can use {@code Locale.getDefault()} for the
-     * default locale.
-     *
-     * @param style  the date style.
-     * @param locale  the locale.
-     */
-    public void setDateFormat(int style, Locale locale) {
-        setText(DateFormat.getDateInstance(style, locale).format(new Date()));
-    }
 
 }

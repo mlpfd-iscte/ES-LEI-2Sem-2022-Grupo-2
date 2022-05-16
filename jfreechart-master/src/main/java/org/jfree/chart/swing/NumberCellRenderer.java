@@ -33,6 +33,7 @@ import java.text.NumberFormat;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 /**
  * A table cell renderer that formats numbers with right alignment in each cell.
@@ -80,6 +81,12 @@ public class NumberCellRenderer extends DefaultTableCellRenderer {
             setBackground(null);
         }
         return this;
+    }
+    
+    public static void collumnSetCellRenderer(Class c, TableColumn column) {
+    	if (c.equals(Number.class)) {
+            column.setCellRenderer(new NumberCellRenderer());
+        }
     }
 
 }

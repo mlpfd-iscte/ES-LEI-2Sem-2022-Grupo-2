@@ -78,32 +78,14 @@ public class ChartMouseEvent extends EventObject implements Serializable {
         this.trigger = trigger;
         this.entity = entity;
     }
-
-    /**
-     * Returns the chart that the mouse event relates to.
-     *
-     * @return The chart (never {@code null}).
-     */
-    public JFreeChart getChart() {
-        return this.chart;
+    
+    public static void checkChart(ChartPanel cp, MouseEvent e, ChartEntity entity, Object[] listeners) {
+    	if (cp.chart != null) {
+            ChartMouseEvent event = new ChartMouseEvent(cp.getChart(), e, entity);
+            for (int i = listeners.length - 1; i >= 0; i -= 1) {
+                ((ChartMouseListener) listeners[i]).chartMouseMoved(event);
+            }
+        }
     }
-
-    /**
-     * Returns the mouse event that triggered this event.
-     *
-     * @return The event (never {@code null}).
-     */
-    public MouseEvent getTrigger() {
-        return this.trigger;
-    }
-
-    /**
-     * Returns the chart entity (if any) under the mouse point.
-     *
-     * @return The chart entity (possibly {@code null}).
-     */
-    public ChartEntity getEntity() {
-        return this.entity;
-    }
-
+    
 }

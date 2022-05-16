@@ -59,15 +59,6 @@ public class FontDisplayField extends JTextField {
     }
 
     /**
-     * Returns the current font.
-     *
-     * @return the font.
-     */
-    public Font getDisplayFont() {
-        return this.displayFont;
-    }
-
-    /**
      * Sets the font.
      *
      * @param font  the font.
