@@ -656,13 +656,17 @@ public abstract class Marker implements Cloneable, Serializable {
      */
     private void readObject(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-        this.paint = SerialUtils.readPaint(stream);
-        this.stroke = SerialUtils.readStroke(stream);
-        this.outlinePaint = SerialUtils.readPaint(stream);
-        this.outlineStroke = SerialUtils.readStroke(stream);
-        this.labelPaint = SerialUtils.readPaint(stream);
-        this.listenerList = new EventListenerList();
+        stream(stream);
+		this.listenerList = new EventListenerList();
     }
+
+	private void stream(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		this.paint = SerialUtils.readPaint(stream);
+		this.stroke = SerialUtils.readStroke(stream);
+		this.outlinePaint = SerialUtils.readPaint(stream);
+		this.outlineStroke = SerialUtils.readStroke(stream);
+		this.labelPaint = SerialUtils.readPaint(stream);
+	}
 
 }

@@ -86,7 +86,9 @@ import org.jfree.data.xy.XYDataset;
 public class XYDifferenceRenderer extends AbstractXYItemRenderer
         implements XYItemRenderer, PublicCloneable {
 
-    /** For serialization. */
+    private transient XYDifferenceRendererProduct xYDifferenceRendererProduct = new XYDifferenceRendererProduct();
+
+	/** For serialization. */
     private static final long serialVersionUID = -8447915602375584857L;
 
     /** The paint used to highlight positive differences (y(0) > y(1)). */
@@ -324,8 +326,8 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
             int series, int item, CrosshairState crosshairState, int pass) {
 
         if (pass == 0) {
-            drawItemPass0(g2, dataArea, info, plot, domainAxis, rangeAxis,
-                    dataset, series, item, crosshairState);
+            xYDifferenceRendererProduct.drawItemPass0(g2, dataArea, info, plot, domainAxis, rangeAxis,
+                    dataset, series, item, crosshairState, this);
         }
         else if (pass == 1) {
             drawItemPass1(g2, dataArea, info, plot, domainAxis, rangeAxis,
@@ -361,429 +363,8 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
                                  int x_item,
                                  CrosshairState x_crosshairState) {
 
-        if (!((0 == x_series) && (0 == x_item))) {
-            return;
-        }
-
-        boolean b_impliedZeroSubtrahend = (1 == x_dataset.getSeriesCount());
-
-        // check if either series is a degenerate case (i.e. less than 2 points)
-        if (isEitherSeriesDegenerate(x_dataset, b_impliedZeroSubtrahend)) {
-            return;
-        }
-
-        // check if series are disjoint (i.e. domain-spans do not overlap)
-        if (!b_impliedZeroSubtrahend && areSeriesDisjoint(x_dataset)) {
-            return;
-        }
-
-        // polygon definitions
-        LinkedList l_minuendXs    = new LinkedList();
-        LinkedList l_minuendYs    = new LinkedList();
-        LinkedList l_subtrahendXs = new LinkedList();
-        LinkedList l_subtrahendYs = new LinkedList();
-        LinkedList l_polygonXs    = new LinkedList();
-        LinkedList l_polygonYs    = new LinkedList();
-
-        // state
-        int l_minuendItem      = 0;
-        int l_minuendItemCount = x_dataset.getItemCount(0);
-        Double l_minuendCurX   = null;
-        Double l_minuendNextX  = null;
-        Double l_minuendCurY   = null;
-        Double l_minuendNextY  = null;
-        double l_minuendMaxY   = Double.NEGATIVE_INFINITY;
-        double l_minuendMinY   = Double.POSITIVE_INFINITY;
-
-        int l_subtrahendItem      = 0;
-        int l_subtrahendItemCount = 0; // actual value set below
-        Double l_subtrahendCurX   = null;
-        Double l_subtrahendNextX  = null;
-        Double l_subtrahendCurY   = null;
-        Double l_subtrahendNextY  = null;
-        double l_subtrahendMaxY   = Double.NEGATIVE_INFINITY;
-        double l_subtrahendMinY   = Double.POSITIVE_INFINITY;
-
-        // if a subtrahend is not specified, assume it is zero
-        if (b_impliedZeroSubtrahend) {
-            l_subtrahendItem      = 0;
-            l_subtrahendItemCount = 2;
-            l_subtrahendCurX      = x_dataset.getXValue(0, 0);
-            l_subtrahendNextX     = x_dataset.getXValue(0,
-                    (l_minuendItemCount - 1));
-            l_subtrahendCurY      = 0.0;
-            l_subtrahendNextY     = 0.0;
-            l_subtrahendMaxY      = 0.0;
-            l_subtrahendMinY      = 0.0;
-
-            l_subtrahendXs.add(l_subtrahendCurX);
-            l_subtrahendYs.add(l_subtrahendCurY);
-        }
-        else {
-            l_subtrahendItemCount = x_dataset.getItemCount(1);
-        }
-
-        boolean b_minuendDone           = false;
-        boolean b_minuendAdvanced       = true;
-        boolean b_minuendAtIntersect    = false;
-        boolean b_minuendFastForward    = false;
-        boolean b_subtrahendDone        = false;
-        boolean b_subtrahendAdvanced    = true;
-        boolean b_subtrahendAtIntersect = false;
-        boolean b_subtrahendFastForward = false;
-        boolean b_colinear              = false;
-
-        boolean b_positive;
-
-        // coordinate pairs
-        double l_x1 = 0.0, l_y1 = 0.0; // current minuend point
-        double l_x2 = 0.0, l_y2 = 0.0; // next minuend point
-        double l_x3 = 0.0, l_y3 = 0.0; // current subtrahend point
-        double l_x4 = 0.0, l_y4 = 0.0; // next subtrahend point
-
-        // fast-forward through leading tails
-        boolean b_fastForwardDone = false;
-        while (!b_fastForwardDone) {
-            // get the x and y coordinates
-            l_x1 = x_dataset.getXValue(0, l_minuendItem);
-            l_y1 = x_dataset.getYValue(0, l_minuendItem);
-            l_x2 = x_dataset.getXValue(0, l_minuendItem + 1);
-            l_y2 = x_dataset.getYValue(0, l_minuendItem + 1);
-
-            l_minuendCurX  = l_x1;
-            l_minuendCurY  = l_y1;
-            l_minuendNextX = l_x2;
-            l_minuendNextY = l_y2;
-
-            if (b_impliedZeroSubtrahend) {
-                l_x3 = l_subtrahendCurX;
-                l_y3 = l_subtrahendCurY;
-                l_x4 = l_subtrahendNextX;
-                l_y4 = l_subtrahendNextY;
-            }
-            else {
-                l_x3 = x_dataset.getXValue(1, l_subtrahendItem);
-                l_y3 = x_dataset.getYValue(1, l_subtrahendItem);
-                l_x4 = x_dataset.getXValue(1, l_subtrahendItem + 1);
-                l_y4 = x_dataset.getYValue(1, l_subtrahendItem + 1);
-
-                l_subtrahendCurX  = l_x3;
-                l_subtrahendCurY  = l_y3;
-                l_subtrahendNextX = l_x4;
-                l_subtrahendNextY = l_y4;
-            }
-
-            if (l_x2 <= l_x3) {
-                // minuend needs to be fast forwarded
-                l_minuendItem++;
-                b_minuendFastForward = true;
-                continue;
-            }
-
-            if (l_x4 <= l_x1) {
-                // subtrahend needs to be fast forwarded
-                l_subtrahendItem++;
-                b_subtrahendFastForward = true;
-                continue;
-            }
-
-            // check if initial polygon needs to be clipped
-            if ((l_x3 < l_x1) && (l_x1 < l_x4)) {
-                // project onto subtrahend
-                double l_slope   = (l_y4 - l_y3) / (l_x4 - l_x3);
-                l_subtrahendCurX = l_minuendCurX;
-                l_subtrahendCurY = (l_slope * l_x1)
-                        + (l_y3 - (l_slope * l_x3));
-
-                l_subtrahendXs.add(l_subtrahendCurX);
-                l_subtrahendYs.add(l_subtrahendCurY);
-            }
-
-            if ((l_x1 < l_x3) && (l_x3 < l_x2)) {
-                // project onto minuend
-                double l_slope = (l_y2 - l_y1) / (l_x2 - l_x1);
-                l_minuendCurX  = l_subtrahendCurX;
-                l_minuendCurY  = (l_slope * l_x3)
-                        + (l_y1 - (l_slope * l_x1));
-
-                l_minuendXs.add(l_minuendCurX);
-                l_minuendYs.add(l_minuendCurY);
-            }
-
-            l_minuendMaxY    = l_minuendCurY;
-            l_minuendMinY    = l_minuendCurY;
-            l_subtrahendMaxY = l_subtrahendCurY;
-            l_subtrahendMinY = l_subtrahendCurY;
-
-            b_fastForwardDone = true;
-        }
-
-        // start of algorithm
-        while (!b_minuendDone && !b_subtrahendDone) {
-            if (!b_minuendDone && !b_minuendFastForward && b_minuendAdvanced) {
-                l_x1 = x_dataset.getXValue(0, l_minuendItem);
-                l_y1 = x_dataset.getYValue(0, l_minuendItem);
-                l_minuendCurX = l_x1;
-                l_minuendCurY = l_y1;
-
-                if (!b_minuendAtIntersect) {
-                    l_minuendXs.add(l_minuendCurX);
-                    l_minuendYs.add(l_minuendCurY);
-                }
-
-                l_minuendMaxY = Math.max(l_minuendMaxY, l_y1);
-                l_minuendMinY = Math.min(l_minuendMinY, l_y1);
-
-                l_x2 = x_dataset.getXValue(0, l_minuendItem + 1);
-                l_y2 = x_dataset.getYValue(0, l_minuendItem + 1);
-                l_minuendNextX = l_x2;
-                l_minuendNextY = l_y2;
-            }
-
-            // never updated the subtrahend if it is implied to be zero
-            if (!b_impliedZeroSubtrahend && !b_subtrahendDone
-                    && !b_subtrahendFastForward && b_subtrahendAdvanced) {
-                l_x3 = x_dataset.getXValue(1, l_subtrahendItem);
-                l_y3 = x_dataset.getYValue(1, l_subtrahendItem);
-                l_subtrahendCurX = l_x3;
-                l_subtrahendCurY = l_y3;
-
-                if (!b_subtrahendAtIntersect) {
-                    l_subtrahendXs.add(l_subtrahendCurX);
-                    l_subtrahendYs.add(l_subtrahendCurY);
-                }
-
-                l_subtrahendMaxY = Math.max(l_subtrahendMaxY, l_y3);
-                l_subtrahendMinY = Math.min(l_subtrahendMinY, l_y3);
-
-                l_x4 = x_dataset.getXValue(1, l_subtrahendItem + 1);
-                l_y4 = x_dataset.getYValue(1, l_subtrahendItem + 1);
-                l_subtrahendNextX = l_x4;
-                l_subtrahendNextY = l_y4;
-            }
-
-            // deassert b_*FastForward (only matters for 1st time through loop)
-            b_minuendFastForward    = false;
-            b_subtrahendFastForward = false;
-
-            Double l_intersectX = null;
-            Double l_intersectY = null;
-            boolean b_intersect = false;
-
-            b_minuendAtIntersect    = false;
-            b_subtrahendAtIntersect = false;
-
-            // check for intersect
-            if ((l_x2 == l_x4) && (l_y2 == l_y4)) {
-                // check if line segments are colinear
-                if ((l_x1 == l_x3) && (l_y1 == l_y3)) {
-                    b_colinear = true;
-                }
-                else {
-                    // the intersect is at the next point for both the minuend
-                    // and subtrahend
-                    l_intersectX = l_x2;
-                    l_intersectY = l_y2;
-
-                    b_intersect             = true;
-                    b_minuendAtIntersect    = true;
-                    b_subtrahendAtIntersect = true;
-                 }
-            }
-            else {
-                // compute common denominator
-                double l_denominator = ((l_y4 - l_y3) * (l_x2 - l_x1))
-                        - ((l_x4 - l_x3) * (l_y2 - l_y1));
-
-                // compute common deltas
-                double l_deltaY = l_y1 - l_y3;
-                double l_deltaX = l_x1 - l_x3;
-
-                // compute numerators
-                double l_numeratorA = ((l_x4 - l_x3) * l_deltaY)
-                        - ((l_y4 - l_y3) * l_deltaX);
-                double l_numeratorB = ((l_x2 - l_x1) * l_deltaY)
-                        - ((l_y2 - l_y1) * l_deltaX);
-
-                // check if line segments are colinear
-                if ((0 == l_numeratorA) && (0 == l_numeratorB)
-                        && (0 == l_denominator)) {
-                    b_colinear = true;
-                }
-                else {
-                    // check if previously colinear
-                    if (b_colinear) {
-                        // clear colinear points and flag
-                        l_minuendXs.clear();
-                        l_minuendYs.clear();
-                        l_subtrahendXs.clear();
-                        l_subtrahendYs.clear();
-                        l_polygonXs.clear();
-                        l_polygonYs.clear();
-
-                        b_colinear = false;
-
-                        // set new starting point for the polygon
-                        boolean b_useMinuend = ((l_x3 <= l_x1)
-                                && (l_x1 <= l_x4));
-                        l_polygonXs.add(b_useMinuend ? l_minuendCurX
-                                : l_subtrahendCurX);
-                        l_polygonYs.add(b_useMinuend ? l_minuendCurY
-                                : l_subtrahendCurY);
-                    }
-                }
-
-                // compute slope components
-                double l_slopeA = l_numeratorA / l_denominator;
-                double l_slopeB = l_numeratorB / l_denominator;
-
-                // test if both grahphs have a vertical rise at the same x-value
-                boolean b_vertical = (l_x1 == l_x2) && (l_x3 == l_x4) && (l_x2 == l_x4);
-
-                // check if the line segments intersect
-                if (((0 < l_slopeA) && (l_slopeA <= 1) && (0 < l_slopeB)
-                        && (l_slopeB <= 1))|| b_vertical) {
-
-                    // compute the point of intersection
-                    double l_xi;
-                    double l_yi;
-                    if(b_vertical){
-                        b_colinear = false;
-                        l_xi = l_x2;
-                        l_yi = l_x4;
-                    }
-                    else{
-                        l_xi = l_x1 + (l_slopeA * (l_x2 - l_x1));
-                        l_yi = l_y1 + (l_slopeA * (l_y2 - l_y1));
-                    }
-
-                    l_intersectX            = l_xi;
-                    l_intersectY            = l_yi;
-                    b_intersect             = true;
-                    b_minuendAtIntersect    = ((l_xi == l_x2)
-                            && (l_yi == l_y2));
-                    b_subtrahendAtIntersect = ((l_xi == l_x4)
-                            && (l_yi == l_y4));
-
-                    // advance minuend and subtrahend to intesect
-                    l_minuendCurX    = l_intersectX;
-                    l_minuendCurY    = l_intersectY;
-                    l_subtrahendCurX = l_intersectX;
-                    l_subtrahendCurY = l_intersectY;
-                }
-            }
-
-            if (b_intersect) {
-                // create the polygon
-                // add the minuend's points to polygon
-                l_polygonXs.addAll(l_minuendXs);
-                l_polygonYs.addAll(l_minuendYs);
-
-                // add intersection point to the polygon
-                l_polygonXs.add(l_intersectX);
-                l_polygonYs.add(l_intersectY);
-
-                // add the subtrahend's points to the polygon in reverse
-                Collections.reverse(l_subtrahendXs);
-                Collections.reverse(l_subtrahendYs);
-                l_polygonXs.addAll(l_subtrahendXs);
-                l_polygonYs.addAll(l_subtrahendYs);
-
-                // create an actual polygon
-                b_positive = (l_subtrahendMaxY <= l_minuendMaxY)
-                        && (l_subtrahendMinY <= l_minuendMinY);
-                createPolygon(x_graphics, x_dataArea, x_plot, x_domainAxis,
-                        x_rangeAxis, b_positive, l_polygonXs, l_polygonYs);
-
-                // clear the point vectors
-                l_minuendXs.clear();
-                l_minuendYs.clear();
-                l_subtrahendXs.clear();
-                l_subtrahendYs.clear();
-                l_polygonXs.clear();
-                l_polygonYs.clear();
-
-                // set the maxY and minY values to intersect y-value
-                double l_y       = l_intersectY;
-                l_minuendMaxY    = l_y;
-                l_subtrahendMaxY = l_y;
-                l_minuendMinY    = l_y;
-                l_subtrahendMinY = l_y;
-
-                // add interection point to new polygon
-                l_polygonXs.add(l_intersectX);
-                l_polygonYs.add(l_intersectY);
-            }
-
-            // advance the minuend if needed
-            if (l_x2 <= l_x4) {
-                l_minuendItem++;
-                b_minuendAdvanced = true;
-            }
-            else {
-                b_minuendAdvanced = false;
-            }
-
-            // advance the subtrahend if needed
-            if (l_x4 <= l_x2) {
-                l_subtrahendItem++;
-                b_subtrahendAdvanced = true;
-            }
-            else {
-                b_subtrahendAdvanced = false;
-            }
-
-            b_minuendDone    = (l_minuendItem == (l_minuendItemCount - 1));
-            b_subtrahendDone = (l_subtrahendItem == (l_subtrahendItemCount
-                    - 1));
-        }
-
-        // check if the final polygon needs to be clipped
-        if (b_minuendDone && (l_x3 < l_x2) && (l_x2 < l_x4)) {
-            // project onto subtrahend
-            double l_slope    = (l_y4 - l_y3) / (l_x4 - l_x3);
-            l_subtrahendNextX = l_minuendNextX;
-            l_subtrahendNextY = (l_slope * l_x2)
-                    + (l_y3 - (l_slope * l_x3));
-        }
-
-        if (b_subtrahendDone && (l_x1 < l_x4) && (l_x4 < l_x2)) {
-            // project onto minuend
-            double l_slope = (l_y2 - l_y1) / (l_x2 - l_x1);
-            l_minuendNextX = l_subtrahendNextX;
-            l_minuendNextY = (l_slope * l_x4)
-                    + (l_y1 - (l_slope * l_x1));
-        }
-
-        // consider last point of minuend and subtrahend for determining
-        // positivity
-        l_minuendMaxY    = Math.max(l_minuendMaxY, l_minuendNextY);
-        l_subtrahendMaxY = Math.max(l_subtrahendMaxY, l_subtrahendNextY);
-        l_minuendMinY    = Math.min(l_minuendMinY, l_minuendNextY);
-        l_subtrahendMinY = Math.min(l_subtrahendMinY, l_subtrahendNextY);
-
-        // add the last point of the minuned and subtrahend
-        l_minuendXs.add(l_minuendNextX);
-        l_minuendYs.add(l_minuendNextY);
-        l_subtrahendXs.add(l_subtrahendNextX);
-        l_subtrahendYs.add(l_subtrahendNextY);
-
-        // create the polygon
-        // add the minuend's points to polygon
-        l_polygonXs.addAll(l_minuendXs);
-        l_polygonYs.addAll(l_minuendYs);
-
-        // add the subtrahend's points to the polygon in reverse
-        Collections.reverse(l_subtrahendXs);
-        Collections.reverse(l_subtrahendYs);
-        l_polygonXs.addAll(l_subtrahendXs);
-        l_polygonYs.addAll(l_subtrahendYs);
-
-        // create an actual polygon
-        b_positive = (l_subtrahendMaxY <= l_minuendMaxY)
-                && (l_subtrahendMinY <= l_minuendMinY);
-        createPolygon(x_graphics, x_dataArea, x_plot, x_domainAxis,
-                x_rangeAxis, b_positive, l_polygonXs, l_polygonYs);
+        xYDifferenceRendererProduct.drawItemPass0(x_graphics, x_dataArea, x_info, x_plot, x_domainAxis, x_rangeAxis,
+				x_dataset, x_series, x_item, x_crosshairState, this);
     }
 
     /**
@@ -913,49 +494,6 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
     }
 
     /**
-     * Determines if a dataset is degenerate.  A degenerate dataset is a
-     * dataset where either series has less than two (2) points.
-     *
-     * @param x_dataset  the dataset.
-     * @param x_impliedZeroSubtrahend  if false, do not check the subtrahend
-     *
-     * @return true if the dataset is degenerate.
-     */
-    private boolean isEitherSeriesDegenerate(XYDataset x_dataset,
-            boolean x_impliedZeroSubtrahend) {
-
-        if (x_impliedZeroSubtrahend) {
-            return (x_dataset.getItemCount(0) < 2);
-        }
-
-        return ((x_dataset.getItemCount(0) < 2)
-                || (x_dataset.getItemCount(1) < 2));
-    }
-
-    /**
-     * Determines if the two (2) series are disjoint.
-     * Disjoint series do not overlap in the domain space.
-     *
-     * @param x_dataset  the dataset.
-     *
-     * @return true if the dataset is degenerate.
-     */
-    private boolean areSeriesDisjoint(XYDataset x_dataset) {
-
-        int l_minuendItemCount = x_dataset.getItemCount(0);
-        double l_minuendFirst  = x_dataset.getXValue(0, 0);
-        double l_minuendLast   = x_dataset.getXValue(0, l_minuendItemCount - 1);
-
-        int l_subtrahendItemCount = x_dataset.getItemCount(1);
-        double l_subtrahendFirst  = x_dataset.getXValue(1, 0);
-        double l_subtrahendLast   = x_dataset.getXValue(1,
-                l_subtrahendItemCount - 1);
-
-        return ((l_minuendLast < l_subtrahendFirst)
-                || (l_subtrahendLast < l_minuendFirst));
-    }
-
-    /**
      * Draws the visual representation of a polygon
      *
      * @param x_graphics  the graphics device.
@@ -971,7 +509,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
      * @param x_yValues  a linked list of the y values (expects values to be
      *                   of type Double).
      */
-    private void createPolygon (Graphics2D x_graphics,
+    public void createPolygon (Graphics2D x_graphics,
                                 Rectangle2D x_dataArea,
                                 XYPlot x_plot,
                                 ValueAxis x_domainAxis,
@@ -1154,6 +692,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
     @Override
     public Object clone() throws CloneNotSupportedException {
         XYDifferenceRenderer clone = (XYDifferenceRenderer) super.clone();
+		clone.xYDifferenceRendererProduct = (XYDifferenceRendererProduct) this.xYDifferenceRendererProduct.clone();
         clone.legendLine = CloneUtils.clone(this.legendLine);
         return clone;
     }
@@ -1167,6 +706,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
+		stream.writeObject(this.xYDifferenceRendererProduct);
         SerialUtils.writePaint(this.positivePaint, stream);
         SerialUtils.writePaint(this.negativePaint, stream);
         SerialUtils.writeShape(this.legendLine, stream);
@@ -1183,6 +723,7 @@ public class XYDifferenceRenderer extends AbstractXYItemRenderer
     private void readObject(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
+		this.xYDifferenceRendererProduct = (XYDifferenceRendererProduct) stream.readObject();
         this.positivePaint = SerialUtils.readPaint(stream);
         this.negativePaint = SerialUtils.readPaint(stream);
         this.legendLine = SerialUtils.readShape(stream);

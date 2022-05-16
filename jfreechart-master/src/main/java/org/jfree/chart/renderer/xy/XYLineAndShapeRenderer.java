@@ -82,59 +82,13 @@ import org.jfree.data.xy.XYDataset;
 public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         implements XYItemRenderer, Cloneable, PublicCloneable, Serializable {
 
-    /** For serialization. */
+    private XYLineAndShapeRendererProduct xYLineAndShapeRendererProduct = new XYLineAndShapeRendererProduct();
+
+	/** For serialization. */
     private static final long serialVersionUID = -7435246895986425885L;
-
-    /**
-     * A table of flags that control (per series) whether or not lines are
-     * visible.
-     */
-    private Map<Integer, Boolean> seriesLinesVisibleMap;
-
-    /** The default value returned by the getLinesVisible() method. */
-    private boolean defaultLinesVisible;
 
     /** The shape that is used to represent a line in the legend. */
     private transient Shape legendLine;
-
-    /**
-     * A table of flags that control (per series) whether or not shapes are
-     * visible.
-     */
-    private Map<Integer, Boolean> seriesShapesVisibleMap;
-
-    /** The default value returned by the getShapeVisible() method. */
-    private boolean defaultShapesVisible;
-
-    /**
-     * A table of flags that control (per series) whether or not shapes are
-     * filled.
-     */
-    private Map<Integer, Boolean> seriesShapesFilledMap;
-
-    /** The default value returned by the getShapeFilled() method. */
-    private boolean defaultShapesFilled;
-
-    /** A flag that controls whether outlines are drawn for shapes. */
-    private boolean drawOutlines;
-
-    /**
-     * A flag that controls whether the fill paint is used for filling
-     * shapes.
-     */
-    private boolean useFillPaint;
-
-    /**
-     * A flag that controls whether the outline paint is used for drawing shape
-     * outlines.
-     */
-    private boolean useOutlinePaint;
-
-    /**
-     * A flag that controls whether or not each series is drawn as a single
-     * path.
-     */
-    private boolean drawSeriesLineAsPath;
 
     /**
      * Creates a new renderer with both lines and shapes visible.
@@ -150,22 +104,22 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @param shapes  shapes visible?
      */
     public XYLineAndShapeRenderer(boolean lines, boolean shapes) {
-        this.seriesLinesVisibleMap = new HashMap<>();
-        this.defaultLinesVisible = lines;
+        xYLineAndShapeRendererProduct.setSeriesLinesVisibleMap(new HashMap<>());
+        xYLineAndShapeRendererProduct.setDefaultLinesVisible2(lines);
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
 
-        this.seriesShapesVisibleMap = new HashMap<>();
-        this.defaultShapesVisible = shapes;
+        xYLineAndShapeRendererProduct.setSeriesShapesVisibleMap(new HashMap<>());
+        xYLineAndShapeRendererProduct.setDefaultShapesVisible2(shapes);
 
-        this.useFillPaint = false;     // use item paint for fills by default
-        this.seriesShapesFilledMap = new HashMap<>();
-        this.defaultShapesFilled = true;
+        xYLineAndShapeRendererProduct.setUseFillPaint2(false);     // use item paint for fills by default
+        xYLineAndShapeRendererProduct.setSeriesShapesFilledMap(new HashMap<>());
+        xYLineAndShapeRendererProduct.setDefaultShapesFilled2(true);
 
-        this.drawOutlines = true;
-        this.useOutlinePaint = false;  // use item paint for outlines by
+        xYLineAndShapeRendererProduct.setDrawOutlines2(true);
+        xYLineAndShapeRendererProduct.setUseOutlinePaint2(false);  // use item paint for outlines by
                                        // default, not outline paint
 
-        this.drawSeriesLineAsPath = false;
+        xYLineAndShapeRendererProduct.setDrawSeriesLineAsPath2(false);
     }
 
     /**
@@ -177,7 +131,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setDrawSeriesLineAsPath(boolean)
      */
     public boolean getDrawSeriesLineAsPath() {
-        return this.drawSeriesLineAsPath;
+        return this.xYLineAndShapeRendererProduct.getDrawSeriesLineAsPath();
     }
 
     /**
@@ -190,10 +144,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getDrawSeriesLineAsPath()
      */
     public void setDrawSeriesLineAsPath(boolean flag) {
-        if (this.drawSeriesLineAsPath != flag) {
-            this.drawSeriesLineAsPath = flag;
-            fireChangeEvent();
-        }
+        xYLineAndShapeRendererProduct.setDrawSeriesLineAsPath(flag, this);
     }
 
     /**
@@ -220,11 +171,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @return A boolean.
      */
     public boolean getItemLineVisible(int series, int item) {
-        Boolean flag = getSeriesLinesVisible(series);
-        if (flag != null) {
-            return flag;
-        }
-        return this.defaultLinesVisible;
+        return xYLineAndShapeRendererProduct.getItemLineVisible(series, item);
     }
 
     /**
@@ -238,7 +185,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesLinesVisible(int, Boolean)
      */
     public Boolean getSeriesLinesVisible(int series) {
-        return this.seriesLinesVisibleMap.get(series);
+        return xYLineAndShapeRendererProduct.getSeriesLinesVisible(series);
     }
 
     /**
@@ -251,8 +198,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesLinesVisible(int)
      */
     public void setSeriesLinesVisible(int series, Boolean flag) {
-        this.seriesLinesVisibleMap.put(series, flag);
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setSeriesLinesVisible(series, flag, this);
     }
 
     /**
@@ -265,7 +211,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesLinesVisible(int)
      */
     public void setSeriesLinesVisible(int series, boolean visible) {
-        setSeriesLinesVisible(series, Boolean.valueOf(visible));
+        xYLineAndShapeRendererProduct.setSeriesLinesVisible(series, Boolean.valueOf(visible), this);
     }
 
     /**
@@ -276,7 +222,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setDefaultLinesVisible(boolean)
      */
     public boolean getDefaultLinesVisible() {
-        return this.defaultLinesVisible;
+        return this.xYLineAndShapeRendererProduct.getDefaultLinesVisible();
     }
 
     /**
@@ -288,8 +234,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getDefaultLinesVisible()
      */
     public void setDefaultLinesVisible(boolean flag) {
-        this.defaultLinesVisible = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setDefaultLinesVisible(flag, this);
     }
 
     /**
@@ -333,11 +278,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @return A boolean.
      */
     public boolean getItemShapeVisible(int series, int item) {
-        Boolean flag = getSeriesShapesVisible(series);
-        if (flag != null) {
-            return flag;
-        }
-        return this.defaultShapesVisible;
+        return xYLineAndShapeRendererProduct.getItemShapeVisible(series, item);
     }
 
     /**
@@ -351,7 +292,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesShapesVisible(int, Boolean)
      */
     public Boolean getSeriesShapesVisible(int series) {
-        return this.seriesShapesVisibleMap.get(series);
+        return xYLineAndShapeRendererProduct.getSeriesShapesVisible(series);
     }
 
     /**
@@ -364,7 +305,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesVisible(int)
      */
     public void setSeriesShapesVisible(int series, boolean visible) {
-        setSeriesShapesVisible(series, Boolean.valueOf(visible));
+        xYLineAndShapeRendererProduct.setSeriesShapesVisible(series, Boolean.valueOf(visible), this);
     }
 
     /**
@@ -377,8 +318,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesVisible(int)
      */
     public void setSeriesShapesVisible(int series, Boolean flag) {
-        this.seriesShapesVisibleMap.put(series, flag);
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setSeriesShapesVisible(series, flag, this);
     }
 
     /**
@@ -389,7 +329,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setDefaultShapesVisible(boolean)
      */
     public boolean getDefaultShapesVisible() {
-        return this.defaultShapesVisible;
+        return this.xYLineAndShapeRendererProduct.getDefaultShapesVisible();
     }
 
     /**
@@ -401,8 +341,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getDefaultShapesVisible()
      */
     public void setDefaultShapesVisible(boolean flag) {
-        this.defaultShapesVisible = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setDefaultShapesVisible(flag, this);
     }
 
     // SHAPES FILLED
@@ -421,11 +360,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @return A boolean.
      */
     public boolean getItemShapeFilled(int series, int item) {
-        Boolean flag = getSeriesShapesFilled(series);
-        if (flag != null) {
-            return flag;
-        }
-        return this.defaultShapesFilled;
+        return xYLineAndShapeRendererProduct.getItemShapeFilled(series, item);
        
     }
 
@@ -440,7 +375,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setSeriesShapesFilled(int, Boolean)
      */
     public Boolean getSeriesShapesFilled(int series) {
-        return this.seriesShapesFilledMap.get(series);
+        return xYLineAndShapeRendererProduct.getSeriesShapesFilled(series);
     }
 
     /**
@@ -453,7 +388,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, boolean flag) {
-        setSeriesShapesFilled(series, Boolean.valueOf(flag));
+        xYLineAndShapeRendererProduct.setSeriesShapesFilled(series, Boolean.valueOf(flag), this);
     }
 
     /**
@@ -466,8 +401,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getSeriesShapesFilled(int)
      */
     public void setSeriesShapesFilled(int series, Boolean flag) {
-        this.seriesShapesFilledMap.put(series, flag);
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setSeriesShapesFilled(series, flag, this);
     }
 
     /**
@@ -478,7 +412,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setDefaultShapesFilled(boolean)
      */
     public boolean getDefaultShapesFilled() {
-        return this.defaultShapesFilled;
+        return this.xYLineAndShapeRendererProduct.getDefaultShapesFilled();
     }
 
     /**
@@ -490,8 +424,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getDefaultShapesFilled()
      */
     public void setDefaultShapesFilled(boolean flag) {
-        this.defaultShapesFilled = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setDefaultShapesFilled(flag, this);
     }
 
     /**
@@ -503,7 +436,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #setDrawOutlines(boolean)
      */
     public boolean getDrawOutlines() {
-        return this.drawOutlines;
+        return this.xYLineAndShapeRendererProduct.getDrawOutlines();
     }
 
     /**
@@ -519,8 +452,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getDrawOutlines()
      */
     public void setDrawOutlines(boolean flag) {
-        this.drawOutlines = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setDrawOutlines(flag, this);
     }
 
     /**
@@ -537,7 +469,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getUseOutlinePaint()
      */
     public boolean getUseFillPaint() {
-        return this.useFillPaint;
+        return this.xYLineAndShapeRendererProduct.getUseFillPaint();
     }
 
     /**
@@ -550,8 +482,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getUseFillPaint()
      */
     public void setUseFillPaint(boolean flag) {
-        this.useFillPaint = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setUseFillPaint(flag, this);
     }
 
     /**
@@ -565,7 +496,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getUseFillPaint()
      */
     public boolean getUseOutlinePaint() {
-        return this.useOutlinePaint;
+        return this.xYLineAndShapeRendererProduct.getUseOutlinePaint();
     }
 
     /**
@@ -581,8 +512,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
      * @see #getUseOutlinePaint()
      */
     public void setUseOutlinePaint(boolean flag) {
-        this.useOutlinePaint = flag;
-        fireChangeEvent();
+        xYLineAndShapeRendererProduct.setUseOutlinePaint(flag, this);
     }
 
     /**
@@ -706,8 +636,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
 
         // first pass draws the background (lines, for instance)
         if (isLinePass(pass)) {
-            if (getItemLineVisible(series, item)) {
-                if (this.drawSeriesLineAsPath) {
+            if (xYLineAndShapeRendererProduct.getItemLineVisible(series, item)) {
+                if (this.xYLineAndShapeRendererProduct.getDrawSeriesLineAsPath()) {
                     drawPrimaryLineAsPath(state, g2, plot, dataset, pass,
                             series, item, domainAxis, rangeAxis, dataArea);
                 }
@@ -942,7 +872,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
         double transX1 = domainAxis.valueToJava2D(x1, dataArea, xAxisLocation);
         double transY1 = rangeAxis.valueToJava2D(y1, dataArea, yAxisLocation);
 
-        if (getItemShapeVisible(series, item)) {
+        if (xYLineAndShapeRendererProduct.getItemShapeVisible(series, item)) {
             Shape shape = getItemShape(series, item);
             if (orientation == PlotOrientation.HORIZONTAL) {
                 shape = ShapeUtils.createTranslatedShape(shape, transY1,
@@ -954,8 +884,8 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             }
             entityArea = shape;
             if (shape.intersects(dataArea)) {
-                if (getItemShapeFilled(series, item)) {
-                    if (this.useFillPaint) {
+                if (xYLineAndShapeRendererProduct.getItemShapeFilled(series, item)) {
+                    if (this.xYLineAndShapeRendererProduct.getUseFillPaint()) {
                         g2.setPaint(getItemFillPaint(series, item));
                     }
                     else {
@@ -963,7 +893,7 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
                     }
                     g2.fill(shape);
                 }
-                if (this.drawOutlines) {
+                if (this.xYLineAndShapeRendererProduct.getDrawOutlines()) {
                     if (getUseOutlinePaint()) {
                         g2.setPaint(getItemOutlinePaint(series, item));
                     }
@@ -1037,16 +967,16 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             urlText = getLegendItemURLGenerator().generateLabel(dataset,
                     series);
         }
-        boolean shapeIsVisible = getItemShapeVisible(series, 0);
+        boolean shapeIsVisible = xYLineAndShapeRendererProduct.getItemShapeVisible(series, 0);
         Shape shape = lookupLegendShape(series);
-        boolean shapeIsFilled = getItemShapeFilled(series, 0);
-        Paint fillPaint = (this.useFillPaint ? lookupSeriesFillPaint(series)
+        boolean shapeIsFilled = xYLineAndShapeRendererProduct.getItemShapeFilled(series, 0);
+        Paint fillPaint = (this.xYLineAndShapeRendererProduct.getUseFillPaint() ? lookupSeriesFillPaint(series)
                 : lookupSeriesPaint(series));
-        boolean shapeOutlineVisible = this.drawOutlines;
-        Paint outlinePaint = (this.useOutlinePaint ? lookupSeriesOutlinePaint(
+        boolean shapeOutlineVisible = this.xYLineAndShapeRendererProduct.getDrawOutlines();
+        Paint outlinePaint = (this.xYLineAndShapeRendererProduct.getUseOutlinePaint() ? lookupSeriesOutlinePaint(
                 series) : lookupSeriesPaint(series));
         Stroke outlineStroke = lookupSeriesOutlineStroke(series);
-        boolean lineVisible = getItemLineVisible(series, 0);
+        boolean lineVisible = xYLineAndShapeRendererProduct.getItemLineVisible(series, 0);
         Stroke lineStroke = lookupSeriesStroke(series);
         Paint linePaint = lookupSeriesPaint(series);
         LegendItem result = new LegendItem(label, description, toolTipText,
@@ -1076,10 +1006,15 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
     @Override
     public Object clone() throws CloneNotSupportedException {
         XYLineAndShapeRenderer clone = (XYLineAndShapeRenderer) super.clone();
-        clone.seriesLinesVisibleMap = new HashMap<>(this.seriesLinesVisibleMap);
+		clone.xYLineAndShapeRendererProduct = (XYLineAndShapeRendererProduct) this.xYLineAndShapeRendererProduct
+				.clone();
+        clone.xYLineAndShapeRendererProduct
+				.setSeriesLinesVisibleMap(new HashMap<>(this.xYLineAndShapeRendererProduct.getSeriesLinesVisibleMap()));
         clone.legendLine = CloneUtils.clone(this.legendLine);
-        clone.seriesShapesVisibleMap = new HashMap<>(this.seriesShapesVisibleMap);
-        clone.seriesShapesFilledMap = new HashMap<>(this.seriesShapesFilledMap);
+        clone.xYLineAndShapeRendererProduct.setSeriesShapesVisibleMap(
+				new HashMap<>(this.xYLineAndShapeRendererProduct.getSeriesShapesVisibleMap()));
+        clone.xYLineAndShapeRendererProduct
+				.setSeriesShapesFilledMap(new HashMap<>(this.xYLineAndShapeRendererProduct.getSeriesShapesFilledMap()));
         return clone;
     }
 
@@ -1102,37 +1037,37 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
             return false;
         }
         XYLineAndShapeRenderer that = (XYLineAndShapeRenderer) obj;
-        if (!Objects.equals(this.seriesLinesVisibleMap, that.seriesLinesVisibleMap)) {
+        if (!Objects.equals(this.xYLineAndShapeRendererProduct.getSeriesLinesVisibleMap(), that.xYLineAndShapeRendererProduct.getSeriesLinesVisibleMap())) {
             return false;
         }
-        if (this.defaultLinesVisible != that.defaultLinesVisible) {
+        if (this.xYLineAndShapeRendererProduct.getDefaultLinesVisible() != that.xYLineAndShapeRendererProduct.getDefaultLinesVisible()) {
             return false;
         }
         if (!ShapeUtils.equal(this.legendLine, that.legendLine)) {
             return false;
         }
-        if (!Objects.equals(this.seriesShapesVisibleMap, that.seriesShapesVisibleMap)) {
+        if (!Objects.equals(this.xYLineAndShapeRendererProduct.getSeriesShapesVisibleMap(), that.xYLineAndShapeRendererProduct.getSeriesShapesVisibleMap())) {
             return false;
         }
-        if (this.defaultShapesVisible != that.defaultShapesVisible) {
+        if (this.xYLineAndShapeRendererProduct.getDefaultShapesVisible() != that.xYLineAndShapeRendererProduct.getDefaultShapesVisible()) {
             return false;
         }
-        if (!Objects.equals(this.seriesShapesFilledMap, that.seriesShapesFilledMap)) {
+        if (!Objects.equals(this.xYLineAndShapeRendererProduct.getSeriesShapesFilledMap(), that.xYLineAndShapeRendererProduct.getSeriesShapesFilledMap())) {
             return false;
         }
-        if (this.defaultShapesFilled != that.defaultShapesFilled) {
+        if (this.xYLineAndShapeRendererProduct.getDefaultShapesFilled() != that.xYLineAndShapeRendererProduct.getDefaultShapesFilled()) {
             return false;
         }
-        if (this.drawOutlines != that.drawOutlines) {
+        if (this.xYLineAndShapeRendererProduct.getDrawOutlines() != that.xYLineAndShapeRendererProduct.getDrawOutlines()) {
             return false;
         }
-        if (this.useOutlinePaint != that.useOutlinePaint) {
+        if (this.xYLineAndShapeRendererProduct.getUseOutlinePaint() != that.xYLineAndShapeRendererProduct.getUseOutlinePaint()) {
             return false;
         }
-        if (this.useFillPaint != that.useFillPaint) {
+        if (this.xYLineAndShapeRendererProduct.getUseFillPaint() != that.xYLineAndShapeRendererProduct.getUseFillPaint()) {
             return false;
         }
-        if (this.drawSeriesLineAsPath != that.drawSeriesLineAsPath) {
+        if (this.xYLineAndShapeRendererProduct.getDrawSeriesLineAsPath() != that.xYLineAndShapeRendererProduct.getDrawSeriesLineAsPath()) {
             return false;
         }
         return true;
@@ -1141,16 +1076,16 @@ public class XYLineAndShapeRenderer extends AbstractXYItemRenderer
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + seriesLinesVisibleMap.hashCode();
-        result = 31 * result + (defaultLinesVisible ? 1 : 0);
-        result = 31 * result + seriesShapesVisibleMap.hashCode();
-        result = 31 * result + (defaultShapesVisible ? 1 : 0);
-        result = 31 * result + seriesShapesFilledMap.hashCode();
-        result = 31 * result + (defaultShapesFilled ? 1 : 0);
-        result = 31 * result + (drawOutlines ? 1 : 0);
-        result = 31 * result + (useFillPaint ? 1 : 0);
-        result = 31 * result + (useOutlinePaint ? 1 : 0);
-        result = 31 * result + (drawSeriesLineAsPath ? 1 : 0);
+        result = 31 * result + xYLineAndShapeRendererProduct.getSeriesLinesVisibleMap().hashCode();
+        result = 31 * result + (xYLineAndShapeRendererProduct.getDefaultLinesVisible() ? 1 : 0);
+        result = 31 * result + xYLineAndShapeRendererProduct.getSeriesShapesVisibleMap().hashCode();
+        result = 31 * result + (xYLineAndShapeRendererProduct.getDefaultShapesVisible() ? 1 : 0);
+        result = 31 * result + xYLineAndShapeRendererProduct.getSeriesShapesFilledMap().hashCode();
+        result = 31 * result + (xYLineAndShapeRendererProduct.getDefaultShapesFilled() ? 1 : 0);
+        result = 31 * result + (xYLineAndShapeRendererProduct.getDrawOutlines() ? 1 : 0);
+        result = 31 * result + (xYLineAndShapeRendererProduct.getUseFillPaint() ? 1 : 0);
+        result = 31 * result + (xYLineAndShapeRendererProduct.getUseOutlinePaint() ? 1 : 0);
+        result = 31 * result + (xYLineAndShapeRendererProduct.getDrawSeriesLineAsPath() ? 1 : 0);
         return result;
     }
 

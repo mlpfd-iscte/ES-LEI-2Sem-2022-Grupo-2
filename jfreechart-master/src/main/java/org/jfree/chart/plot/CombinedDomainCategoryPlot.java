@@ -338,51 +338,48 @@ public class CombinedDomainCategoryPlot extends CategoryPlot
             }
         }
 
-        Rectangle2D adjustedPlotArea = space.shrink(plotArea, null);
-
-        // work out the maximum height or width of the non-shared axes...
-        int n = this.subplots.size();
-        int totalWeight = 0;
-        for (int i = 0; i < n; i++) {
-            CategoryPlot sub = (CategoryPlot) this.subplots.get(i);
-            totalWeight += sub.getWeight();
-        }
-        this.subplotAreas = new Rectangle2D[n];
-        double x = adjustedPlotArea.getX();
-        double y = adjustedPlotArea.getY();
-        double usableSize = 0.0;
-        if (orientation == PlotOrientation.HORIZONTAL) {
-            usableSize = adjustedPlotArea.getWidth() - this.gap * (n - 1);
-        }
-        else if (orientation == PlotOrientation.VERTICAL) {
-            usableSize = adjustedPlotArea.getHeight() - this.gap * (n - 1);
-        }
-
-        for (int i = 0; i < n; i++) {
-            CategoryPlot plot = (CategoryPlot) this.subplots.get(i);
-
-            // calculate sub-plot area
-            if (orientation == PlotOrientation.HORIZONTAL) {
-                double w = usableSize * plot.getWeight() / totalWeight;
-                this.subplotAreas[i] = new Rectangle2D.Double(x, y, w,
-                        adjustedPlotArea.getHeight());
-                x = x + w + this.gap;
-            }
-            else if (orientation == PlotOrientation.VERTICAL) {
-                double h = usableSize * plot.getWeight() / totalWeight;
-                this.subplotAreas[i] = new Rectangle2D.Double(x, y,
-                        adjustedPlotArea.getWidth(), h);
-                y = y + h + this.gap;
-            }
-
-            AxisSpace subSpace = plot.calculateRangeAxisSpace(g2,
-                    this.subplotAreas[i], null);
-            space.ensureAtLeast(subSpace);
-
-        }
-
-        return space;
+        double x = x(g2, plotArea, space, orientation);
+		return space;
     }
+
+	private double x(Graphics2D g2, Rectangle2D plotArea, AxisSpace space, PlotOrientation orientation) {
+		Rectangle2D adjustedPlotArea = space.shrink(plotArea, null);
+		int n = this.subplots.size();
+		int totalWeight = 0;
+		for (int i = 0; i < n; i++) {
+			CategoryPlot sub = (CategoryPlot) this.subplots.get(i);
+			totalWeight += sub.getWeight();
+		}
+		this.subplotAreas = new Rectangle2D[n];
+		double x = adjustedPlotArea.getX();
+		double y = adjustedPlotArea.getY();
+		double usableSize = usableSize(orientation, adjustedPlotArea, n);
+		for (int i = 0; i < n; i++) {
+			CategoryPlot plot = (CategoryPlot) this.subplots.get(i);
+			if (orientation == PlotOrientation.HORIZONTAL) {
+				double w = usableSize * plot.getWeight() / totalWeight;
+				this.subplotAreas[i] = new Rectangle2D.Double(x, y, w, adjustedPlotArea.getHeight());
+				x = x + w + this.gap;
+			} else if (orientation == PlotOrientation.VERTICAL) {
+				double h = usableSize * plot.getWeight() / totalWeight;
+				this.subplotAreas[i] = new Rectangle2D.Double(x, y, adjustedPlotArea.getWidth(), h);
+				y = y + h + this.gap;
+			}
+			AxisSpace subSpace = plot.calculateRangeAxisSpace(g2, this.subplotAreas[i], null);
+			space.ensureAtLeast(subSpace);
+		}
+		return x;
+	}
+
+	private double usableSize(PlotOrientation orientation, Rectangle2D adjustedPlotArea, int n) {
+		double usableSize = 0.0;
+		if (orientation == PlotOrientation.HORIZONTAL) {
+			usableSize = adjustedPlotArea.getWidth() - this.gap * (n - 1);
+		} else if (orientation == PlotOrientation.VERTICAL) {
+			usableSize = adjustedPlotArea.getHeight() - this.gap * (n - 1);
+		}
+		return usableSize;
+	}
 
     /**
      * Receives a chart element visitor.  Many plot subclasses will override

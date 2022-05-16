@@ -3033,7 +3033,7 @@ public class XYPlot<S extends Comparable<S>> extends Plot
             double x = getDomainCrosshairValue();
             Paint paint = getDomainCrosshairPaint();
             Stroke stroke = getDomainCrosshairStroke();
-            drawDomainCrosshair(g2, dataArea, orient, x, xAxis, stroke, paint);
+            xAxis.drawDomainCrosshair(g2, dataArea, orient, x, stroke, paint);
         }
 
         // draw range crosshair if required...
@@ -3053,7 +3053,7 @@ public class XYPlot<S extends Comparable<S>> extends Plot
             double y = getRangeCrosshairValue();
             Paint paint = getRangeCrosshairPaint();
             Stroke stroke = getRangeCrosshairStroke();
-            drawRangeCrosshair(g2, dataArea, orient, y, yAxis, stroke, paint);
+            yAxis.drawRangeCrosshair(g2, dataArea, orient, y, stroke, paint);
         }
 
         if (!foundData) {
@@ -3844,45 +3844,6 @@ public class XYPlot<S extends Comparable<S>> extends Plot
     }
 
     /**
-     * Draws a domain crosshair.
-     *
-     * @param g2  the graphics target.
-     * @param dataArea  the data area.
-     * @param orientation  the plot orientation.
-     * @param value  the crosshair value.
-     * @param axis  the axis against which the value is measured.
-     * @param stroke  the stroke used to draw the crosshair line.
-     * @param paint  the paint used to draw the crosshair line.
-     */
-    protected void drawDomainCrosshair(Graphics2D g2, Rectangle2D dataArea,
-            PlotOrientation orientation, double value, ValueAxis axis,
-            Stroke stroke, Paint paint) {
-
-        if (!axis.getRange().contains(value)) {
-            return;
-        }
-        Line2D line;
-        if (orientation == PlotOrientation.VERTICAL) {
-            double xx = axis.valueToJava2D(value, dataArea,
-                    RectangleEdge.BOTTOM);
-            line = new Line2D.Double(xx, dataArea.getMinY(), xx,
-                    dataArea.getMaxY());
-        } else {
-            double yy = axis.valueToJava2D(value, dataArea,
-                    RectangleEdge.LEFT);
-            line = new Line2D.Double(dataArea.getMinX(), yy,
-                    dataArea.getMaxX(), yy);
-        }
-        Object saved = g2.getRenderingHint(RenderingHints.KEY_STROKE_CONTROL);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 
-                RenderingHints.VALUE_STROKE_NORMALIZE);
-        g2.setStroke(stroke);
-        g2.setPaint(paint);
-        g2.draw(line);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, saved);
-    }
-
-    /**
      * Utility method for drawing a vertical line on the data area of the plot.
      *
      * @param g2  the graphics device.
@@ -3908,44 +3869,6 @@ public class XYPlot<S extends Comparable<S>> extends Plot
             g2.draw(line);
         }
 
-    }
-
-    /**
-     * Draws a range crosshair.
-     *
-     * @param g2  the graphics target.
-     * @param dataArea  the data area.
-     * @param orientation  the plot orientation.
-     * @param value  the crosshair value.
-     * @param axis  the axis against which the value is measured.
-     * @param stroke  the stroke used to draw the crosshair line.
-     * @param paint  the paint used to draw the crosshair line.
-     */
-    protected void drawRangeCrosshair(Graphics2D g2, Rectangle2D dataArea,
-            PlotOrientation orientation, double value, ValueAxis axis,
-            Stroke stroke, Paint paint) {
-
-        if (!axis.getRange().contains(value)) {
-            return;
-        }
-        Object saved = g2.getRenderingHint(RenderingHints.KEY_STROKE_CONTROL);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 
-                RenderingHints.VALUE_STROKE_NORMALIZE);
-        Line2D line;
-        if (orientation == PlotOrientation.HORIZONTAL) {
-            double xx = axis.valueToJava2D(value, dataArea, 
-                    RectangleEdge.BOTTOM);
-            line = new Line2D.Double(xx, dataArea.getMinY(), xx,
-                    dataArea.getMaxY());
-        } else {
-            double yy = axis.valueToJava2D(value, dataArea, RectangleEdge.LEFT);
-            line = new Line2D.Double(dataArea.getMinX(), yy,
-                    dataArea.getMaxX(), yy);
-        }
-        g2.setStroke(stroke);
-        g2.setPaint(paint);
-        g2.draw(line);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, saved);
     }
 
     /**
@@ -4746,20 +4669,22 @@ public class XYPlot<S extends Comparable<S>> extends Plot
             if (xAxis == null) {
                 continue;
             }
-            if (useAnchor) {
-                // get the relevant source coordinate given the plot orientation
-                double sourceX = source.getX();
-                if (this.orientation == PlotOrientation.HORIZONTAL) {
-                    sourceX = source.getY();
-                }
-                double anchorX = xAxis.java2DToValue(sourceX,
-                        info.getDataArea(), getDomainAxisEdge());
-                xAxis.resizeRange2(factor, anchorX);
-            } else {
-                xAxis.resizeRange(factor);
-            }
+            xAxis(factor, info, source, useAnchor, xAxis);
         }
     }
+
+	private void xAxis(double factor, PlotRenderingInfo info, Point2D source, boolean useAnchor, ValueAxis xAxis) {
+		if (useAnchor) {
+			double sourceX = source.getX();
+			if (this.orientation == PlotOrientation.HORIZONTAL) {
+				sourceX = source.getY();
+			}
+			double anchorX = xAxis.java2DToValue(sourceX, info.getDataArea(), getDomainAxisEdge());
+			xAxis.resizeRange2(factor, anchorX);
+		} else {
+			xAxis.resizeRange(factor);
+		}
+	}
 
     /**
      * Zooms in on the domain axis/axes.  The new lower and upper bounds are
@@ -4821,20 +4746,22 @@ public class XYPlot<S extends Comparable<S>> extends Plot
             if (yAxis == null) {
                 continue;
             }
-            if (useAnchor) {
-                // get the relevant source coordinate given the plot orientation
-                double sourceY = source.getY();
-                if (this.orientation == PlotOrientation.HORIZONTAL) {
-                    sourceY = source.getX();
-                }
-                double anchorY = yAxis.java2DToValue(sourceY,
-                        info.getDataArea(), getRangeAxisEdge());
-                yAxis.resizeRange2(factor, anchorY);
-            } else {
-                yAxis.resizeRange(factor);
-            }
+            yAxis(factor, info, source, useAnchor, yAxis);
         }
     }
+
+	private void yAxis(double factor, PlotRenderingInfo info, Point2D source, boolean useAnchor, ValueAxis yAxis) {
+		if (useAnchor) {
+			double sourceY = source.getY();
+			if (this.orientation == PlotOrientation.HORIZONTAL) {
+				sourceY = source.getX();
+			}
+			double anchorY = yAxis.java2DToValue(sourceY, info.getDataArea(), getRangeAxisEdge());
+			yAxis.resizeRange2(factor, anchorY);
+		} else {
+			yAxis.resizeRange(factor);
+		}
+	}
 
     /**
      * Zooms in on the range axes.
